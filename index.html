@@ -19,7 +19,7 @@ html, body {
   color: white;
 }
 
-/* ---------- MENÚ ---------- */
+/* -------- MENÚ -------- */
 
 #startScreen {
   position: fixed;
@@ -64,7 +64,7 @@ html, body {
   margin: 6px;
 }
 
-/* ---------- A-FRAME ---------- */
+/* -------- AFRAME -------- */
 
 #iosScene {
   position: fixed;
@@ -72,9 +72,7 @@ html, body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1;
+  visibility: hidden;
 }
 </style>
 </head>
@@ -165,7 +163,7 @@ function next(){
   updateUI();
 }
 
-/* ---------- SCENE VIEWER ---------- */
+/* -------- SCENE VIEWER -------- */
 
 function launchSceneViewer(){
 
@@ -182,7 +180,7 @@ function launchSceneViewer(){
   window.location.href = intent;
 }
 
-/* ---------- A-FRAME ---------- */
+/* -------- AFRAME -------- */
 
 function launchAFrame(){
 
@@ -192,8 +190,7 @@ function launchAFrame(){
   document.getElementById("startScreen").style.display = "none";
 
   const scene = document.querySelector("#iosScene");
-  scene.style.opacity = "1";
-  scene.style.pointerEvents = "auto";
+  scene.style.visibility = "visible";
 
   if (scene.hasLoaded) {
     scene.systems["mindar-image-system"].start();
@@ -211,15 +208,13 @@ function exitAFrame(){
 
   mindarSystem.stop();
 
-  scene.style.opacity = "0";
-  scene.style.pointerEvents = "none";
-
+  scene.style.visibility = "hidden";
   document.getElementById("startScreen").style.display = "flex";
 
   arActive = false;
 }
 
-/* ---------- MODEL VIEWER ---------- */
+/* -------- MODEL VIEWER -------- */
 
 function openFallback(){
 
@@ -255,7 +250,7 @@ function exitModelViewer(){
   modelViewerActive = false;
 }
 
-/* ---------- BACK BUTTON ---------- */
+/* -------- BACK BUTTON -------- */
 
 window.addEventListener("popstate", () => {
 
