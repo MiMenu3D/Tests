@@ -17,18 +17,11 @@ html, body {
   font-family: sans-serif;
 }
 
-/* A-FRAME */
-
 a-scene {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   background: transparent;
 }
-
-/* MODEL VIEWER */
 
 #mvContainer {
   position: fixed;
@@ -43,8 +36,6 @@ model-viewer {
   height: 100%;
   background: #f2f2f2;
 }
-
-/* MENÚ */
 
 #startScreen {
   position: fixed;
@@ -94,30 +85,26 @@ model-viewer {
 
 <body>
 
-<!-- A-FRAME -->
-
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true;"
-  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 2; toneMapping: ACESFilmicToneMapping;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0001; filterBeta: 0.003;"
+  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
 >
 
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-gltf-model
-      id="aframeModel"
-      src="Plato_01.glb"
-      rotation="90 0 0"
-      scale="6 6 6">
-    </a-gltf-model>
-  </a-entity>
+<a-entity mindar-image-target="targetIndex: 0">
+  <a-gltf-model
+    id="aframeModel"
+    src="Plato_01.glb"
+    rotation="90 0 0"
+    scale="6 6 6">
+  </a-gltf-model>
+</a-entity>
 
 </a-scene>
-
-<!-- MODEL VIEWER -->
 
 <div id="mvContainer">
   <model-viewer
@@ -130,12 +117,7 @@ model-viewer {
     exposure="1"
     occlusion="false">
   </model-viewer>
-
-  <button class="button" style="position:absolute;top:20px;left:20px;z-index:40;"
-    onclick="closeModelViewer()">← Volver</button>
 </div>
-
-<!-- MENÚ -->
 
 <div id="startScreen">
   <div id="modelTitle">Plato 01</div>
@@ -145,8 +127,8 @@ model-viewer {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <button class="button" onclick="enterAFrame()">A-Frame</button>
   <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
+  <button class="button" onclick="enterAFrame()">A-Frame</button>
   <button class="button" onclick="enterModelViewer()">model-viewer</button>
 </div>
 
@@ -159,12 +141,14 @@ const models = [
 
 let current = 0;
 
+function absoluteModelURL(file){
+  return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
+}
+
 function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
-  document.getElementById("aframeModel")
-    .setAttribute("src", models[current].file);
-  document.getElementById("mv")
-    .setAttribute("src", models[current].file);
+  document.getElementById("aframeModel").setAttribute("src", models[current].file);
+  document.getElementById("mv").setAttribute("src", models[current].file);
 }
 
 function prev(){
@@ -173,31 +157,32 @@ function prev(){
 }
 
 function next(){
-  current = (current+1)%models.length;
+  current = (current+models.length+1)%models.length;
   updateUI();
 }
 
 function enterAFrame(){
   document.getElementById("startScreen").style.display = "none";
+  history.pushState({mode:"aframe"}, "");
 }
 
 function enterModelViewer(){
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
-}
-
-function closeModelViewer(){
-  document.getElementById("mvContainer").style.display = "none";
-  document.getElementById("startScreen").style.display = "flex";
+  history.pushState({mode:"modelviewer"}, "");
 }
 
 function enterSceneViewer(){
-  const url = window.location.href;
-  const file = models[current].file;
-  const intent =
-  `intent://${window.location.host}${window.location.pathname}${file}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${url};end;`;
+  const modelURL = absoluteModelURL(models[current].file);
+  const intent = 
+  `intent://${modelURL.replace("https://","")}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;end;`;
   window.location.href = intent;
 }
+
+window.addEventListener("popstate", function(){
+  document.getElementById("mvContainer").style.display = "none";
+  document.getElementById("startScreen").style.display = "flex";
+});
 
 updateUI();
 
