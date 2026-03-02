@@ -5,11 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Logo 3D</title>
 
-<!-- A-Frame (iOS / fallback AR) -->
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-<!-- Model Viewer (fallback universal) -->
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
@@ -22,11 +19,10 @@ html, body {
   color: white;
 }
 
-/* ---------- PANTALLA INICIO ---------- */
 #startScreen {
   position: fixed;
   inset: 0;
-  background: url("Loading_screen.png") center/cover no-repeat;
+  background: url("Loading screen.png") center/cover no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -34,25 +30,6 @@ html, body {
   padding-bottom: 20%;
   z-index: 10;
 }
-
-.button {
-  background: white;
-  color: black;
-  padding: 14px 28px;
-  border-radius: 30px;
-  font-size: 16px;
-  border: none;
-  margin: 8px;
-}
-
-#fallbackBtn {
-  font-size: 13px;
-  background: transparent;
-  color: white;
-  text-decoration: underline;
-}
-
-/* ---------- FLECHAS ---------- */
 
 #modelTitle {
   font-size: 22px;
@@ -75,12 +52,28 @@ html, body {
   border-radius: 12px;
   border: none;
 }
+
+.button {
+  background: white;
+  color: black;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 16px;
+  border: none;
+  margin: 8px;
+}
+
+#fallbackBtn {
+  font-size: 13px;
+  background: transparent;
+  color: white;
+  text-decoration: underline;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ================= PANTALLA INICIO ================= -->
 <div id="startScreen">
 
   <div id="modelTitle">Plato 01</div>
@@ -95,7 +88,6 @@ html, body {
 
 </div>
 
-<!-- ================= A-FRAME ================= -->
 <a-scene
   id="iosScene"
   mindar-image="
@@ -122,10 +114,8 @@ html, body {
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <!-- HDR Environment -->
   <a-entity environment-map="src: #hdrEnv; intensity: 1.8"></a-entity>
 
-  <!-- Luces -->
   <a-light type="ambient" intensity="1.2"></a-light>
   <a-light type="directional" intensity="3.0" position="1 3 2"></a-light>
   <a-light type="directional" intensity="1.8" position="-2 2 -1"></a-light>
@@ -143,8 +133,6 @@ html, body {
 
 <script>
 
-// ===== MODELOS (IGUAL QUE SISTEMA QUE FUNCIONABA) =====
-
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" }
@@ -154,8 +142,6 @@ let current = 0;
 
 function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
-
-  // Actualizar modelo A-Frame sin tocar nada más
   const aframeModel = document.getElementById("aframeModel");
   if (aframeModel){
     aframeModel.setAttribute("src", models[current].file);
@@ -168,16 +154,12 @@ function prev(){
 }
 
 function next(){
-  current = (current+models.length+1)%models.length;
+  current = (current+1)%models.length;
   updateUI();
 }
 
-// ===== DETECCIÓN DISPOSITIVO =====
-
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 const isAndroid = /Android/.test(navigator.userAgent);
-
-// ===== LANZAR AR =====
 
 function launchAR(){
 
@@ -191,11 +173,10 @@ function launchAR(){
   }
 }
 
-// ===== ANDROID → SCENE VIEWER =====
-
 function launchSceneViewer(){
 
-  const modelUrl = window.location.origin + "/" + models[current].file;
+  const basePath = window.location.origin + window.location.pathname.replace("index.html","");
+  const modelUrl = basePath + models[current].file;
 
   const intent =
     `intent://arvr.google.com/scene-viewer/1.0?file=${modelUrl}` +
@@ -206,21 +187,14 @@ function launchSceneViewer(){
   window.location.href = intent;
 }
 
-// ===== A-FRAME =====
-
 function launchAFrame(){
-
   const scene = document.querySelector("#iosScene");
   scene.style.display = "block";
-
   const mindarSystem = scene.systems["mindar-image-system"];
   mindarSystem.start();
 }
 
-// ===== FALLBACK MODEL-VIEWER =====
-
 function openFallback(){
-
   document.body.innerHTML = `
   <model-viewer
     src="${models[current].file}"
