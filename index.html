@@ -152,12 +152,12 @@ function updateUI(){
 }
 
 function prev(){
-  current = (current-1+models.length)%models.length;
+  current = (current - 1 + models.length) % models.length;
   updateUI();
 }
 
 function next(){
-  current = (current+models.length+1)%models.length;
+  current = (current + 1) % models.length;
   updateUI();
 }
 
@@ -174,8 +174,10 @@ function enterModelViewer(){
 
 function enterSceneViewer(){
   const modelURL = absoluteModelURL(models[current].file);
-  const intent = 
-  `intent://${modelURL.replace("https://","")}#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;end;`;
+
+  const intent =
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+
   window.location.href = intent;
 }
 
