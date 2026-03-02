@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Logo 3D</title>
+<title>Test AR</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -19,7 +19,7 @@ html, body {
   color: white;
 }
 
-/* -------- MENÚ -------- */
+/* ---------- MENÚ ---------- */
 
 #startScreen {
   position: fixed;
@@ -64,13 +64,17 @@ html, body {
   margin: 6px;
 }
 
-/* -------- AFRAME CONTROL -------- */
+/* ---------- A-FRAME ---------- */
 
 #iosScene {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   opacity: 0;
   pointer-events: none;
+  z-index: 1;
 }
 </style>
 </head>
@@ -161,7 +165,7 @@ function next(){
   updateUI();
 }
 
-/* -------- SCENE VIEWER -------- */
+/* ---------- SCENE VIEWER ---------- */
 
 function launchSceneViewer(){
 
@@ -178,12 +182,11 @@ function launchSceneViewer(){
   window.location.href = intent;
 }
 
-/* -------- AFRAME -------- */
+/* ---------- A-FRAME ---------- */
 
 function launchAFrame(){
 
   history.pushState({ ar:true }, "");
-
   arActive = true;
 
   document.getElementById("startScreen").style.display = "none";
@@ -192,8 +195,13 @@ function launchAFrame(){
   scene.style.opacity = "1";
   scene.style.pointerEvents = "auto";
 
-  const mindarSystem = scene.systems["mindar-image-system"];
-  mindarSystem.start();
+  if (scene.hasLoaded) {
+    scene.systems["mindar-image-system"].start();
+  } else {
+    scene.addEventListener("loaded", () => {
+      scene.systems["mindar-image-system"].start();
+    }, { once: true });
+  }
 }
 
 function exitAFrame(){
@@ -211,29 +219,43 @@ function exitAFrame(){
   arActive = false;
 }
 
-/* -------- MODEL VIEWER -------- */
+/* ---------- MODEL VIEWER ---------- */
 
 function openFallback(){
 
   history.pushState({ mv:true }, "");
-
   modelViewerActive = true;
 
-  document.body.innerHTML = `
-  <model-viewer
-    src="${models[current].file}"
-    camera-controls
-    auto-rotate
-    shadow-intensity="0"
-    style="width:100vw;height:100vh;background:#f2f2f2;">
-  </model-viewer>`;
+  const mvContainer = document.createElement("div");
+  mvContainer.id = "mvContainer";
+  mvContainer.style.position = "fixed";
+  mvContainer.style.top = "0";
+  mvContainer.style.left = "0";
+  mvContainer.style.width = "100vw";
+  mvContainer.style.height = "100vh";
+  mvContainer.style.background = "#f2f2f2";
+  mvContainer.style.zIndex = "20";
+
+  mvContainer.innerHTML = `
+    <model-viewer
+      src="${models[current].file}"
+      camera-controls
+      auto-rotate
+      shadow-intensity="0"
+      style="width:100%;height:100%;">
+    </model-viewer>
+  `;
+
+  document.body.appendChild(mvContainer);
 }
 
 function exitModelViewer(){
-  location.reload();
+  const mv = document.getElementById("mvContainer");
+  if (mv) mv.remove();
+  modelViewerActive = false;
 }
 
-/* -------- BACK BUTTON CONTROL -------- */
+/* ---------- BACK BUTTON ---------- */
 
 window.addEventListener("popstate", () => {
 
