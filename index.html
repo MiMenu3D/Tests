@@ -60,14 +60,7 @@ html, body {
   border-radius: 30px;
   font-size: 16px;
   border: none;
-  margin: 8px;
-}
-
-#fallbackBtn {
-  font-size: 13px;
-  background: transparent;
-  color: white;
-  text-decoration: underline;
+  margin: 6px;
 }
 </style>
 </head>
@@ -83,8 +76,9 @@ html, body {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <button class="button" onclick="launchAR()">Ver en tu mesa</button>
-  <button id="fallbackBtn" onclick="openFallback()">¿No puedes verlo? Pulsa aquí</button>
+  <button class="button" onclick="launchSceneViewer()">Ver en tu mesa</button>
+  <button class="button" onclick="launchAFrame()">A-Frame</button>
+  <button class="button" onclick="openFallback()">Ver modelo 3D</button>
 
 </div>
 
@@ -158,20 +152,7 @@ function next(){
   updateUI();
 }
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-const isAndroid = /Android/.test(navigator.userAgent);
-
-function launchAR(){
-
-  document.getElementById("startScreen").style.display = "none";
-
-  if (isAndroid) {
-    launchSceneViewer();
-  } 
-  else {
-    launchAFrame();
-  }
-}
+// ---------- SCENE VIEWER ----------
 
 function launchSceneViewer(){
 
@@ -182,17 +163,23 @@ function launchSceneViewer(){
     `intent://arvr.google.com/scene-viewer/1.0?file=${modelUrl}` +
     `&mode=ar_only` +
     `&resizable=false` +
+    `&disable_occlusion=true` +
     `#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
 
   window.location.href = intent;
 }
 
+// ---------- A-FRAME ----------
+
 function launchAFrame(){
+  document.getElementById("startScreen").style.display = "none";
   const scene = document.querySelector("#iosScene");
   scene.style.display = "block";
   const mindarSystem = scene.systems["mindar-image-system"];
   mindarSystem.start();
 }
+
+// ---------- MODEL VIEWER ----------
 
 function openFallback(){
   document.body.innerHTML = `
@@ -200,9 +187,8 @@ function openFallback(){
     src="${models[current].file}"
     camera-controls
     auto-rotate
-    ar
-    ar-modes="scene-viewer quick-look webxr"
-    style="width:100vw;height:100vh;background:black;">
+    shadow-intensity="0"
+    style="width:100vw;height:100vh;background:#f2f2f2;">
   </model-viewer>`;
 }
 
