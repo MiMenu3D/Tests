@@ -19,7 +19,7 @@ html, body {
   color: white;
 }
 
-/* ---------- MENÚ ---------- */
+/* -------- MENÚ -------- */
 
 #startScreen {
   position: fixed;
@@ -41,7 +41,6 @@ html, body {
 
 .arrowContainer {
   display: flex;
-  align-items: center;
   gap: 20px;
   margin-bottom: 10px;
 }
@@ -65,9 +64,12 @@ html, body {
   margin: 6px;
 }
 
-/* ---------- A-FRAME CONTROL ---------- */
+/* -------- AFRAME CONTROL -------- */
 
 #iosScene {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
   pointer-events: none;
 }
 </style>
@@ -90,7 +92,6 @@ html, body {
 
 <a-scene
   id="iosScene"
-  embedded
   mindar-image="
     imageTargetSrc: margot_targets.mind;
     autoStart: false;
@@ -139,6 +140,8 @@ const models = [
 ];
 
 let current = 0;
+let arActive = false;
+let modelViewerActive = false;
 
 function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
@@ -158,7 +161,7 @@ function next(){
   updateUI();
 }
 
-/* ---------- SCENE VIEWER ---------- */
+/* -------- SCENE VIEWER -------- */
 
 function launchSceneViewer(){
 
@@ -175,24 +178,47 @@ function launchSceneViewer(){
   window.location.href = intent;
 }
 
-/* ---------- A-FRAME ---------- */
+/* -------- AFRAME -------- */
 
 function launchAFrame(){
+
+  history.pushState({ ar:true }, "");
+
+  arActive = true;
 
   document.getElementById("startScreen").style.display = "none";
 
   const scene = document.querySelector("#iosScene");
-
-  // Activar interacción ahora
+  scene.style.opacity = "1";
   scene.style.pointerEvents = "auto";
 
   const mindarSystem = scene.systems["mindar-image-system"];
   mindarSystem.start();
 }
 
-/* ---------- MODEL VIEWER ---------- */
+function exitAFrame(){
+
+  const scene = document.querySelector("#iosScene");
+  const mindarSystem = scene.systems["mindar-image-system"];
+
+  mindarSystem.stop();
+
+  scene.style.opacity = "0";
+  scene.style.pointerEvents = "none";
+
+  document.getElementById("startScreen").style.display = "flex";
+
+  arActive = false;
+}
+
+/* -------- MODEL VIEWER -------- */
 
 function openFallback(){
+
+  history.pushState({ mv:true }, "");
+
+  modelViewerActive = true;
+
   document.body.innerHTML = `
   <model-viewer
     src="${models[current].file}"
@@ -202,6 +228,24 @@ function openFallback(){
     style="width:100vw;height:100vh;background:#f2f2f2;">
   </model-viewer>`;
 }
+
+function exitModelViewer(){
+  location.reload();
+}
+
+/* -------- BACK BUTTON CONTROL -------- */
+
+window.addEventListener("popstate", () => {
+
+  if (arActive) {
+    exitAFrame();
+  }
+
+  if (modelViewerActive) {
+    exitModelViewer();
+  }
+
+});
 
 updateUI();
 
