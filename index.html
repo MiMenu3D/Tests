@@ -1,144 +1,238 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Menu AR</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Logo 3D</title>
 
+<!-- A-Frame (iOS / fallback AR) -->
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
+<!-- Model Viewer (fallback universal) -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
 <style>
-body {
-  margin:0;
-  overflow:hidden;
-  background:black;
-  font-family:sans-serif;
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  background: black;
+  color: white;
 }
 
+/* ---------- PANTALLA INICIO ---------- */
 #startScreen {
-  position:fixed;
-  inset:0;
-  background:url("Loading screen.png") center/cover no-repeat;
-  display:flex;
-  justify-content:center;
-  align-items:flex-end;
-  padding-bottom:60px;
-  z-index:10;
+  position: fixed;
+  inset: 0;
+  background: url("Loading_screen.png") center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 20%;
+  z-index: 10;
 }
 
-#enterBtn {
-  padding:18px 40px;
-  font-size:22px;
-  border:none;
-  border-radius:14px;
-  background:white;
-  color:black;
-  font-weight:bold;
+.button {
+  background: white;
+  color: black;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 16px;
+  border: none;
+  margin: 8px;
+}
+
+#fallbackBtn {
+  font-size: 13px;
+  background: transparent;
+  color: white;
+  text-decoration: underline;
+}
+
+/* ---------- FLECHAS ---------- */
+
+#modelTitle {
+  font-size: 22px;
+  margin-bottom: 12px;
+  text-shadow: 0 0 10px black;
+}
+
+.arrowContainer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.arrow {
+  font-size: 28px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.9);
+  color: black;
+  border-radius: 12px;
+  border: none;
 }
 </style>
 </head>
 
 <body>
 
+<!-- ================= PANTALLA INICIO ================= -->
 <div id="startScreen">
-  <button id="enterBtn">Ver en tu mesa</button>
+
+  <div id="modelTitle">Plato 01</div>
+
+  <div class="arrowContainer">
+    <button class="arrow" onclick="prev()">←</button>
+    <button class="arrow" onclick="next()">→</button>
+  </div>
+
+  <button class="button" onclick="launchAR()">Ver en tu mesa</button>
+  <button id="fallbackBtn" onclick="openFallback()">¿No puedes verlo? Pulsa aquí</button>
+
 </div>
+
+<!-- ================= A-FRAME ================= -->
+<a-scene
+  id="iosScene"
+  mindar-image="
+    imageTargetSrc: margot_targets.mind;
+    autoStart: false;
+    filterMinCF: 0.0001;
+    filterBeta: 0.003;
+  "
+  renderer="
+    physicallyCorrectLights: true;
+    colorManagement: true;
+    exposure: 2;
+    toneMapping: ACESFilmicToneMapping;
+  "
+  color-space="sRGB"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  style="display:none"
+>
+
+  <a-assets timeout="10000">
+    <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+  </a-assets>
+
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+  <!-- HDR Environment -->
+  <a-entity environment-map="src: #hdrEnv; intensity: 1.8"></a-entity>
+
+  <!-- Luces -->
+  <a-light type="ambient" intensity="1.2"></a-light>
+  <a-light type="directional" intensity="3.0" position="1 3 2"></a-light>
+  <a-light type="directional" intensity="1.8" position="-2 2 -1"></a-light>
+
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-gltf-model
+      id="aframeModel"
+      src="Plato_01.glb"
+      rotation="90 0 0"
+      scale="2.8 2.8 2.8">
+    </a-gltf-model>
+  </a-entity>
+
+</a-scene>
 
 <script>
 
-// ===== DETECCIÓN SIMPLE =====
+// ===== MODELOS (IGUAL QUE SISTEMA QUE FUNCIONABA) =====
 
-const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-const isAndroid = /Android/i.test(navigator.userAgent);
+const models = [
+  { name:"Plato 01", file:"Plato_01.glb" },
+  { name:"Plato 02", file:"Plato_02.glb" }
+];
 
-document.getElementById("enterBtn").addEventListener("click", () => {
+let current = 0;
 
-  if (isAndroid) {
-    launchSceneViewer();
-  } else {
-    startAFrame();
+function updateUI(){
+  document.getElementById("modelTitle").innerText = models[current].name;
+
+  // Actualizar modelo A-Frame sin tocar nada más
+  const aframeModel = document.getElementById("aframeModel");
+  if (aframeModel){
+    aframeModel.setAttribute("src", models[current].file);
   }
-
-});
-
-// ===== ANDROID → SCENE VIEWER =====
-
-function launchSceneViewer() {
-
-  const modelUrl = "https://mimenu3d.github.io/Margots/Plato_01.glb";
-
-  const url =
-    "https://arvr.google.com/scene-viewer/1.0" +
-    "?file=" + encodeURIComponent(modelUrl) +
-    "&mode=ar_only" +
-    "&resizable=false";
-
-  window.location.href = url;
 }
 
-// ===== iOS (Y FALLBACK) → A-FRAME =====
+function prev(){
+  current = (current-1+models.length)%models.length;
+  updateUI();
+}
 
-function startAFrame() {
+function next(){
+  current = (current+models.length+1)%models.length;
+  updateUI();
+}
+
+// ===== DETECCIÓN DISPOSITIVO =====
+
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const isAndroid = /Android/.test(navigator.userAgent);
+
+// ===== LANZAR AR =====
+
+function launchAR(){
 
   document.getElementById("startScreen").style.display = "none";
 
-  const sceneHTML = `
-  <a-scene
-    mindar-image="
-      imageTargetSrc: margot_targets.mind;
-      autoStart: true;
-      filterMinCF: 0.0001;
-      filterBeta: 0.003;
-    "
-    renderer="
-      physicallyCorrectLights: true;
-      colorManagement: true;
-      exposure: 2;
-      toneMapping: ACESFilmicToneMapping;
-    "
-    color-space="sRGB"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-  >
-
-    <a-assets timeout="10000">
-      <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-    </a-assets>
-
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <a-entity environment-map="src: #hdrEnv; intensity: 1.8"></a-entity>
-
-    <a-light type="ambient" intensity="1.2"></a-light>
-    <a-light type="directional" intensity="3.0" position="1 3 2"></a-light>
-    <a-light type="directional" intensity="1.8" position="-2 2 -1"></a-light>
-
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model
-        src="Plato_01.glb"
-        rotation="90 0 0"
-        scale="10 10 10">
-      </a-gltf-model>
-    </a-entity>
-
-  </a-scene>
-  `;
-
-  document.body.insertAdjacentHTML("beforeend", sceneHTML);
+  if (isAndroid) {
+    launchSceneViewer();
+  } 
+  else {
+    launchAFrame();
+  }
 }
 
-// ===== EVITAR APAGADO DE PANTALLA =====
+// ===== ANDROID → SCENE VIEWER =====
 
-let wakeLock = null;
+function launchSceneViewer(){
 
-async function keepAwake() {
-  try {
-    wakeLock = await navigator.wakeLock.request('screen');
-  } catch(e) {}
+  const modelUrl = window.location.origin + "/" + models[current].file;
+
+  const intent =
+    `intent://arvr.google.com/scene-viewer/1.0?file=${modelUrl}` +
+    `&mode=ar_only` +
+    `&resizable=false` +
+    `#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+
+  window.location.href = intent;
 }
 
-document.addEventListener("click", keepAwake);
+// ===== A-FRAME =====
+
+function launchAFrame(){
+
+  const scene = document.querySelector("#iosScene");
+  scene.style.display = "block";
+
+  const mindarSystem = scene.systems["mindar-image-system"];
+  mindarSystem.start();
+}
+
+// ===== FALLBACK MODEL-VIEWER =====
+
+function openFallback(){
+
+  document.body.innerHTML = `
+  <model-viewer
+    src="${models[current].file}"
+    camera-controls
+    auto-rotate
+    ar
+    ar-modes="scene-viewer quick-look webxr"
+    style="width:100vw;height:100vh;background:black;">
+  </model-viewer>`;
+}
+
+updateUI();
 
 </script>
 
