@@ -15,11 +15,9 @@ html, body {
   padding: 0;
   overflow: hidden;
   font-family: sans-serif;
-  background: black;
-  color: white;
 }
 
-/* -------- A-FRAME (SIEMPRE ACTIVO COMO EN TUS VERSIONES OK) -------- */
+/* A-FRAME FULLSCREEN */
 
 a-scene {
   position: fixed;
@@ -27,9 +25,10 @@ a-scene {
   left: 0;
   width: 100vw;
   height: 100vh;
+  background: transparent;
 }
 
-/* -------- MENÚ SUPERPUESTO -------- */
+/* MENÚ */
 
 #startScreen {
   position: fixed;
@@ -47,6 +46,7 @@ a-scene {
   font-size: 22px;
   margin-bottom: 12px;
   text-shadow: 0 0 10px black;
+  color: white;
 }
 
 .arrowContainer {
@@ -78,21 +78,9 @@ a-scene {
 
 <body>
 
-<!-- A-FRAME SIEMPRE CARGADO -->
-
 <a-scene
-  mindar-image="
-    imageTargetSrc: margot_targets.mind;
-    autoStart: true;
-    filterMinCF: 0.0001;
-    filterBeta: 0.003;
-  "
-  renderer="
-    physicallyCorrectLights: true;
-    colorManagement: true;
-    exposure: 2;
-    toneMapping: ACESFilmicToneMapping;
-  "
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0001; filterBeta: 0.003;"
+  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 2; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
@@ -121,8 +109,6 @@ a-scene {
 
 </a-scene>
 
-<!-- MENÚ -->
-
 <div id="startScreen">
   <div id="modelTitle">Plato 01</div>
 
@@ -131,9 +117,7 @@ a-scene {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <button class="button" onclick="launchSceneViewer()">Ver en tu mesa</button>
   <button class="button" onclick="enterAFrame()">A-Frame</button>
-  <button class="button" onclick="openFallback()">Ver modelo 3D</button>
 </div>
 
 <script>
@@ -144,7 +128,6 @@ const models = [
 ];
 
 let current = 0;
-let modelViewerActive = false;
 
 function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
@@ -162,70 +145,9 @@ function next(){
   updateUI();
 }
 
-/* -------- ENTRAR A-FRAME -------- */
-
 function enterAFrame(){
-  history.pushState({ ar:true }, "");
   document.getElementById("startScreen").style.display = "none";
 }
-
-/* -------- SCENE VIEWER -------- */
-
-function launchSceneViewer(){
-
-  const basePath = window.location.origin + window.location.pathname.replace("index.html","");
-  const modelUrl = basePath + models[current].file;
-
-  const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${modelUrl}` +
-    `&mode=ar_only` +
-    `&resizable=false` +
-    `&disable_occlusion=true` +
-    `#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
-
-  window.location.href = intent;
-}
-
-/* -------- MODEL VIEWER -------- */
-
-function openFallback(){
-
-  history.pushState({ mv:true }, "");
-  modelViewerActive = true;
-
-  const mvContainer = document.createElement("div");
-  mvContainer.id = "mvContainer";
-  mvContainer.style.position = "fixed";
-  mvContainer.style.top = "0";
-  mvContainer.style.left = "0";
-  mvContainer.style.width = "100vw";
-  mvContainer.style.height = "100vh";
-  mvContainer.style.background = "#f2f2f2";
-  mvContainer.style.zIndex = "20";
-
-  mvContainer.innerHTML = `
-    <model-viewer
-      src="${models[current].file}"
-      camera-controls
-      auto-rotate
-      shadow-intensity="0"
-      style="width:100%;height:100%;">
-    </model-viewer>
-  `;
-
-  document.body.appendChild(mvContainer);
-}
-
-window.addEventListener("popstate", () => {
-
-  const mv = document.getElementById("mvContainer");
-  if (mv) {
-    mv.remove();
-    modelViewerActive = false;
-  }
-
-  document.getElementById("startScreen").style.display = "flex";
-});
 
 updateUI();
 
