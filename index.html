@@ -174,9 +174,10 @@ function enterModelViewer(){
 
 function enterSceneViewer(){
   const modelURL = absoluteModelURL(models[current].file);
+  const fallbackURL = window.location.href + "?fallback=aframe";
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_only&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_only&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
   window.location.href = intent;
 }
@@ -185,6 +186,11 @@ window.addEventListener("popstate", function(){
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
 });
+
+// AUTO-FALLBACK A-FRAME
+if (window.location.search.includes("fallback=aframe")) {
+  document.getElementById("startScreen").style.display = "none";
+}
 
 updateUI();
 
