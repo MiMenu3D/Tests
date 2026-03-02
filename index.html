@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Test AR</title>
 
+<!-- 🔒 Anti caché navegador -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
@@ -92,6 +97,12 @@ model-viewer {
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
 >
+
+<a-assets>
+  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+</a-assets>
+
+<a-entity environment-map="src: #hdrEnv; intensity: 1.5"></a-entity>
 
 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
@@ -187,10 +198,16 @@ window.addEventListener("popstate", function(){
   document.getElementById("startScreen").style.display = "flex";
 });
 
-// AUTO-FALLBACK A-FRAME
 if (window.location.search.includes("fallback=aframe")) {
   document.getElementById("startScreen").style.display = "none";
 }
+
+/* 🔄 Fuerza recarga si Chrome usa Back-Forward Cache */
+window.addEventListener("pageshow", function (event) {
+  if (event.persisted) {
+    window.location.reload();
+  }
+});
 
 updateUI();
 
