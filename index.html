@@ -86,7 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0001; filterBeta: 0.003;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -191,7 +191,7 @@ function enterSceneViewer(){
   const fallbackURL = window.location.href;
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
   window.location.href = intent;
 }
