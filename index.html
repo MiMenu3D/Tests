@@ -146,7 +146,6 @@ const models = [
 ];
 
 let current = 0;
-let arActive = false;
 
 function absoluteModelURL(file){
   return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
@@ -169,19 +168,11 @@ function next(){
 }
 
 function enterAFrame(){
-  if (!arActive) {
-    history.pushState({ar:true}, "");
-    arActive = true;
-  }
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
 }
 
 function enterModelViewer(){
-  if (!arActive) {
-    history.pushState({ar:true}, "");
-    arActive = true;
-  }
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
 }
@@ -196,10 +187,12 @@ function enterSceneViewer(){
   window.location.href = intent;
 }
 
-window.addEventListener("popstate", function(){
-  arActive = false;
-  document.getElementById("mvContainer").style.display = "none";
-  document.getElementById("startScreen").style.display = "flex";
+/* 🔵 COMPORTAMIENTO TIPO APP NATIVA */
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden) {
+    document.getElementById("mvContainer").style.display = "none";
+    document.getElementById("startScreen").style.display = "flex";
+  }
 });
 
 updateUI();
