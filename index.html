@@ -146,6 +146,16 @@ const models = [
 ];
 
 let current = 0;
+let arMode = false;
+
+/* 🔵 Crear SOLO una entrada AR */
+function activateARState() {
+  if (!arMode) {
+    history.replaceState({menu:true}, "");
+    history.pushState({ar:true}, "");
+    arMode = true;
+  }
+}
 
 function absoluteModelURL(file){
   return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
@@ -168,16 +178,20 @@ function next(){
 }
 
 function enterAFrame(){
+  activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
 }
 
 function enterModelViewer(){
+  activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
 }
 
 function enterSceneViewer(){
+  activateARState();
+
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
 
@@ -187,12 +201,10 @@ function enterSceneViewer(){
   window.location.href = intent;
 }
 
-/* 🔵 COMPORTAMIENTO TIPO APP NATIVA */
-document.addEventListener("visibilitychange", function() {
-  if (!document.hidden) {
-    document.getElementById("mvContainer").style.display = "none";
-    document.getElementById("startScreen").style.display = "flex";
-  }
+window.addEventListener("popstate", function(){
+  arMode = false;
+  document.getElementById("mvContainer").style.display = "none";
+  document.getElementById("startScreen").style.display = "flex";
 });
 
 updateUI();
