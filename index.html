@@ -5,20 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Test AR</title>
 
-<script>
-/* 🔥 CONTROL DE VERSIÓN PRODUCCIÓN */
-const SITE_VERSION = "1.0.1";
-
-(function() {
-  const url = new URL(window.location.href);
-  const currentVersion = url.searchParams.get("v");
-  if (currentVersion !== SITE_VERSION) {
-    url.searchParams.set("v", SITE_VERSION);
-    window.location.replace(url.toString());
-  }
-})();
-</script>
-
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
@@ -160,7 +146,7 @@ const models = [
 ];
 
 let current = 0;
-let currentMode = "menu";
+let arActive = false;
 
 function absoluteModelURL(file){
   return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
@@ -183,17 +169,21 @@ function next(){
 }
 
 function enterAFrame(){
-  currentMode = "aframe";
+  if (!arActive) {
+    history.pushState({ar:true}, "");
+    arActive = true;
+  }
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
-  history.replaceState({mode:"ar"}, "");
 }
 
 function enterModelViewer(){
-  currentMode = "modelviewer";
+  if (!arActive) {
+    history.pushState({ar:true}, "");
+    arActive = true;
+  }
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
-  history.replaceState({mode:"ar"}, "");
 }
 
 function enterSceneViewer(){
@@ -206,21 +196,17 @@ function enterSceneViewer(){
   window.location.href = intent;
 }
 
-/* 🔁 Historial limpio */
+/* 🔁 Botón atrás siempre vuelve al menú */
 window.addEventListener("popstate", function(){
-  currentMode = "menu";
+  arActive = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
 });
 
-/* 🔵 Forzar inicialización silenciosa model-viewer
-   para que el botón cubo AR aparezca siempre */
+/* 🔵 Inicializar model-viewer sin romperlo */
 window.addEventListener("load", () => {
   const mv = document.getElementById("mv");
-  mv.style.display = "block";
-  setTimeout(() => {
-    mv.style.display = "none";
-  }, 50);
+  mv.addEventListener("ar-status", () => {});
 });
 
 updateUI();
