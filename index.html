@@ -191,22 +191,15 @@ function enterSceneViewer(){
   const fallbackURL = window.location.href;
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_only&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
   window.location.href = intent;
 }
 
-/* 🔁 Botón atrás siempre vuelve al menú */
 window.addEventListener("popstate", function(){
   arActive = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
-});
-
-/* 🔵 Inicializar model-viewer sin romperlo */
-window.addEventListener("load", () => {
-  const mv = document.getElementById("mv");
-  mv.addEventListener("ar-status", () => {});
 });
 
 updateUI();
