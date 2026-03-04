@@ -148,15 +148,6 @@ const models = [
 let current = 0;
 let arMode = false;
 
-/* 🔵 Crear SOLO una entrada AR */
-function activateARState() {
-  if (!arMode) {
-    history.replaceState({menu:true}, "");
-    history.pushState({ar:true}, "");
-    arMode = true;
-  }
-}
-
 function absoluteModelURL(file){
   return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
 }
@@ -178,34 +169,25 @@ function next(){
 }
 
 function enterAFrame(){
-  activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
 }
 
 function enterModelViewer(){
-  activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
 }
 
 function enterSceneViewer(){
-  activateARState();
 
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchboxXXXXX;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
   window.location.href = intent;
 }
-
-window.addEventListener("popstate", function(){
-  arMode = false;
-  document.getElementById("mvContainer").style.display = "none";
-  document.getElementById("startScreen").style.display = "flex";
-});
 
 updateUI();
 
