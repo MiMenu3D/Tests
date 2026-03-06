@@ -1,144 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test AR</title>
 
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
+
 body{
 margin:0;
+font-family:sans-serif;
 background:#000;
+color:white;
+text-align:center;
+}
+
+#menu{
+position:absolute;
+top:0;
+left:0;
+right:0;
+bottom:0;
 display:flex;
 flex-direction:column;
-align-items:center;
 justify-content:center;
-height:100vh;
+align-items:center;
+gap:10px;
 }
 
 button{
-padding:15px 25px;
-margin:10px;
-font-size:18px;
-border:none;
+padding:12px 20px;
+font-size:16px;
 border-radius:8px;
-background:#1976d2;
-color:white;
-cursor:pointer;
+border:none;
 }
 
-#viewer{
-width:100%;
-height:100%;
+#arFrame{
 display:none;
+position:absolute;
+top:0;
+left:0;
+right:0;
+bottom:0;
 }
-</style>
 
+</style>
 </head>
+
 <body>
 
-<button onclick="startAR()">Abrir AR</button>
-<button onclick="forceSceneViewer()">Scene Viewer</button>
+<div id="menu">
 
-<model-viewer
-id="viewer"
-src="modelo.glb"
-ar
-ar-modes="webxr scene-viewer quick-look"
-camera-controls
-auto-rotate
-shadow-intensity="1"
-></model-viewer>
+<h2>Prueba AR</h2>
+
+<button onclick="startWebXR()">WebXR</button>
+
+<button onclick="startSceneViewer()">Scene Viewer</button>
+
+<button onclick="startAFrame()">A-Frame</button>
+
+<button onclick="startModelViewer()">Model-Viewer</button>
+
+<div id="fallback" style="display:none">
+<p>¿No puedes verlo?</p>
+<button onclick="startAFrame()">Probar modo alternativo</button>
+</div>
+
+</div>
+
+
+<div id="arFrame"></div>
+
 
 <script>
 
-const viewer = document.getElementById("viewer")
+let model="Plato_01.glb"
 
-async function startAR(){
+async function startWebXR(){
 
-if(navigator.xr){
+if(!navigator.xr){
+
+document.getElementById("fallback").style.display="block"
+return
+
+}
 
 try{
 
-const supported = await navigator.xr.isSessionSupported("immersive-ar")
+const supported=await navigator.xr.isSessionSupported("immersive-ar")
 
-if(supported){
+if(!supported){
 
-launchWebXR()
+document.getElementById("fallback").style.display="block"
 return
 
 }
 
-}catch(e){}
+const session=await navigator.xr.requestSession("immersive-ar",{
+requiredFeatures:["local-floor"]
+})
+
+console.log("WebXR iniciado",session)
+
+}catch(e){
+
+console.log("WebXR fallo",e)
+
+document.getElementById("fallback").style.display="block"
 
 }
 
-launchSceneViewer()
+}
+
+
+
+function startSceneViewer(){
+
+const url=window.location.href.replace("index.html","")+model
+
+const intent=`intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(url)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`
+
+window.location.href=intent
 
 }
 
-function launchWebXR(){
 
-viewer.style.display="block"
 
-viewer.activateAR()
+function startAFrame(){
 
-checkRender()
+document.getElementById("menu").style.display="none"
 
-}
+document.getElementById("arFrame").innerHTML=`
 
-function checkRender(){
+<a-scene
+mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true"
+color-space="sRGB"
+renderer="physicallyCorrectLights"
+vr-mode-ui="enabled:false"
+device-orientation-permission-ui="enabled:false">
 
-setTimeout(()=>{
+<a-assets>
 
-const mesh = viewer.model
+<a-asset-item id="model" src="${model}"></a-asset-item>
 
-if(!mesh){
+</a-assets>
 
-console.log("WebXR sin polígonos → fallback")
+<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-launchSceneViewer()
+<a-entity mindar-image-target="targetIndex:0">
 
-}
+<a-gltf-model src="#model" scale="0.02 0.02 0.02"></a-gltf-model>
 
-},4000)
+</a-entity>
 
-}
-
-function launchSceneViewer(){
-
-const ua = navigator.userAgent.toLowerCase()
-
-if(ua.includes("android")){
-
-const url = `intent://arvr.google.com/scene-viewer/1.0?file=https://tuweb.com/modelo.glb&mode=ar_only#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`
-
-window.location.href = url
-
-return
+</a-scene>
+`
 
 }
 
-launchQuickLook()
 
-}
 
-function launchQuickLook(){
+function startModelViewer(){
 
-const link = document.createElement("a")
+document.getElementById("menu").style.display="none"
 
-link.setAttribute("rel","ar")
+document.getElementById("arFrame").innerHTML=`
 
-link.setAttribute("href","modelo.usdz")
+<model-viewer
+src="${model}"
+camera-controls
+auto-rotate
+style="width:100%;height:100%;background:#fff"
+ar
+ar-modes="scene-viewer webxr quick-look">
+</model-viewer>
 
-document.body.appendChild(link)
-
-link.click()
-
-}
-
-function forceSceneViewer(){
-
-launchSceneViewer()
+`
 
 }
 
