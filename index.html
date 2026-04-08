@@ -7,7 +7,6 @@
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
 html, body {
@@ -21,20 +20,26 @@ html, body {
 
 a-scene {
   position: fixed;
-  inset: 0;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
   background: transparent;
 }
 
 #startScreen {
   position: fixed;
-  inset: 0;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
   background: url("Loading screen.png") center/cover no-repeat;
-  display: flex;
+  display:flex;
   flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding-bottom: 20%;
-  z-index: 30;
+  justify-content:flex-end;
+  align-items:center;
+  padding-bottom:20%;
+  z-index:30;
 }
 
 #modelTitle {
@@ -47,7 +52,7 @@ a-scene {
 .arrowContainer {
   display: flex;
   gap: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .arrow {
@@ -68,38 +73,62 @@ a-scene {
   border: none;
   margin: 6px;
 }
+
+#arjsContainer {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 20;
+  background: transparent;
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- MindAR A-frame scene -->
 <a-scene
+  id="mindarScene"
   mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
+  style="display:none;"
 >
+  <a-assets>
+    <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+  </a-assets>
 
-<a-assets>
-  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-</a-assets>
+  <a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-<a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
-
-<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-<a-entity mindar-image-target="targetIndex: 0">
-  <a-gltf-model
-    id="aframeModel"
-    src="Plato_01.glb"
-    rotation="90 0 0"
-    scale="8 8 8">
-  </a-gltf-model>
-</a-entity>
-
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-gltf-model
+      id="aframeModel"
+      src="Plato_01.glb"
+      rotation="90 0 0"
+      scale="8 8 8">
+    </a-gltf-model>
+  </a-entity>
 </a-scene>
 
+<!-- AR.js scene container -->
+<div id="arjsContainer">
+  <a-scene
+    id="arjsScene"
+    embedded
+    arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;"
+  >
+    <a-marker type="pattern" url="marker.patt">
+      <a-entity id="arjsModel" gltf-model="Plato_01.glb" scale="8 8 8" rotation="0 0 0"></a-entity>
+    </a-marker>
+    <a-entity camera></a-entity>
+  </a-scene>
+</div>
+
+<!-- Start screen -->
 <div id="startScreen">
   <div id="modelTitle">Plato 01</div>
 
@@ -108,32 +137,38 @@ a-scene {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
-  <button class="button" onclick="enterAFrame()">A-Frame</button>
-  <button class="button" onclick="enterARjs()">AR.js</button>
+  <button class="button" id="btnSceneViewer">Scene Viewer</button>
+  <button class="button" id="btnAFrame">A-frame</button>
+  <button class="button" id="btnARjs">AR.js</button>
 </div>
 
 <script>
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const models = [
+  { name:"Plato 01", file:"Plato_01.glb", usdz:"Plato_01.usdz" },
+  { name:"Plato 02", file:"Plato_02.glb", usdz:"Plato_02.usdz" },
+  { name:"Plato 03", file:"Plato_03.glb", usdz:"Plato_03.usdz" },
+  { name:"Plato 04", file:"Plato_04.glb", usdz:"Plato_04.usdz" },
+  { name:"Plato 05", file:"Plato_05.glb", usdz:"Plato_05.usdz" },
+  { name:"Plato 06", file:"Plato_06.glb", usdz:"Plato_06.usdz" },
+  { name:"Plato 07", file:"Plato_07.glb", usdz:"Plato_07.usdz" },
+  { name:"Plato 08", file:"Plato_08.glb", usdz:"Plato_08.usdz" },
+  { name:"Plato 09", file:"Plato_09.glb", usdz:"Plato_09.usdz" },
+  { name:"Plato_10", file:"Plato_10.glb", usdz:"Plato_10.usdz" },
+  { name:"Plato_11", file:"Plato_11.glb", usdz:"Plato_11.usdz" },
+  { name:"Plato_12", file:"Plato_12.glb", usdz:"Plato_12.usdz" },
+  { name:"Plato_13", file:"Plato_13.glb", usdz:"Plato_13.usdz" },
+  { name:"Plato_14", file:"Plato_14.glb", usdz:"Plato_14.usdz" },
+  { name:"Plato_15", file:"Plato_15.glb", usdz:"Plato_15.usdz" }
+];
+
 let current = 0;
 let arMode = false;
-
-const models = Array.from({length: 15}, (_, i) => ({
-  name: `Plato_${String(i+1).padStart(2,'0')}`,
-  file: `Plato_${String(i+1).padStart(2,'0')}.glb`
-}));
-
-function activateARState() {
-  if (!arMode) {
-    history.replaceState({menu:true}, "");
-    history.pushState({ar:true}, "");
-    arMode = true;
-  }
-}
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
   document.getElementById("aframeModel").setAttribute("src", models[current].file);
+  document.getElementById("arjsModel").setAttribute("gltf-model", models[current].file);
 }
 
 function prev(){
@@ -146,59 +181,60 @@ function next(){
   updateUI();
 }
 
-// Quick Look / Scene Viewer
 function absoluteModelURL(file){
-  return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
+  return window.location.origin + window.location.pathname.replace(/[^/]*$/,'') + file;
 }
 
+// Activate AR state
+function activateARState(){
+  if(!arMode){
+    history.replaceState({menu:true},"");
+    history.pushState({ar:true},"");
+    arMode = true;
+  }
+}
+
+// Scene Viewer / Quick Look
 function enterSceneViewer(){
   activateARState();
   if(isIOS){
-    window.location.href = absoluteModelURL(models[current].file.replace(".glb",".usdz"));
+    // Quick Look
+    window.location.href = absoluteModelURL(models[current].usdz);
   } else {
+    // Android Scene Viewer
     const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(absoluteModelURL(models[current].file))}&mode=ar_preferred&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end;`;
     window.location.href = intent;
   }
 }
 
-// A-Frame
+// MindAR / A-frame
 function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
-  document.querySelector("a-scene").style.display = "block";
+  document.getElementById("mindarScene").style.display = "block";
 }
 
 // AR.js
 function enterARjs(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
-
-  const scene = document.querySelector("a-scene");
-  // Cambiamos MindAR por marcador AR.js
-  scene.innerHTML = `
-    <a-marker type="pattern" url="marker.patt">
-      <a-gltf-model
-        id="arjsModel"
-        src="${models[current].file}"
-        rotation="90 0 0"
-        scale="8 8 8">
-      </a-gltf-model>
-    </a-marker>
-    <a-entity camera></a-entity>
-  `;
-  scene.style.display = "block";
+  document.getElementById("arjsContainer").style.display = "block";
 }
 
-// Flechas del menú
-updateUI();
+// Buttons
+document.getElementById("btnSceneViewer").onclick = enterSceneViewer;
+document.getElementById("btnAFrame").onclick = enterAFrame;
+document.getElementById("btnARjs").onclick = enterARjs;
 
-// Volver atrás
+// Back handler
 window.addEventListener("popstate", function(){
   arMode = false;
-  document.querySelector("a-scene").style.display = "none";
+  document.getElementById("mindarScene").style.display = "none";
+  document.getElementById("arjsContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
 });
 
+updateUI();
 </script>
 
 </body>
