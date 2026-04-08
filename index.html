@@ -7,7 +7,6 @@
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
@@ -24,12 +23,6 @@ a-scene {
   background: transparent;
 }
 
-#arjsScene {
-  position: fixed;
-  inset: 0;
-  display: none;
-}
-
 #mvContainer {
   position: fixed;
   inset: 0;
@@ -41,6 +34,7 @@ a-scene {
 model-viewer {
   width: 100%;
   height: 100%;
+  background: #f2f2f2;
 }
 
 #startScreen {
@@ -58,8 +52,8 @@ model-viewer {
 #modelTitle {
   font-size: 22px;
   margin-bottom: 12px;
-  color: white;
   text-shadow: 0 0 10px black;
+  color: white;
 }
 
 .arrowContainer {
@@ -71,56 +65,67 @@ model-viewer {
 .arrow {
   font-size: 28px;
   padding: 10px 16px;
-  background: white;
+  background: rgba(255,255,255,0.9);
+  color: black;
   border-radius: 12px;
   border: none;
 }
 
 .button {
   background: white;
+  color: black;
   padding: 14px 28px;
   border-radius: 30px;
-  margin: 6px;
+  font-size: 16px;
   border: none;
+  margin: 6px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- A-FRAME (MindAR) -->
 <a-scene
   id="scene"
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false;"
-  renderer="alpha: true; physicallyCorrectLights: true; exposure: 3.5;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; filterMinCF: 0.0002; filterBeta: 0.004;"
+  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
+  color-space="sRGB"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
 >
-  <a-assets>
-    <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-  </a-assets>
 
-  <a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
+<a-assets>
+  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+</a-assets>
 
-  <a-camera look-controls="enabled:false"></a-camera>
+<a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
 
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-gltf-model id="aframeModel" src="Plato_01.glb" scale="8 8 8" rotation="90 0 0"></a-gltf-model>
-  </a-entity>
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+<a-entity mindar-image-target="targetIndex: 0">
+  <a-gltf-model
+    id="aframeModel"
+    src="Plato_01.glb"
+    rotation="90 0 0"
+    scale="8 8 8">
+  </a-gltf-model>
+</a-entity>
+
 </a-scene>
 
-<!-- AR.JS -->
-<a-scene id="arjsScene" embedded arjs>
-  <a-marker type="pattern" url="marker.patt">
-    <a-gltf-model id="arjsModel" src="Plato_01.glb" scale="0.5 0.5 0.5"></a-gltf-model>
-  </a-marker>
-  <a-entity camera></a-entity>
-</a-scene>
-
-<!-- MODEL VIEWER -->
 <div id="mvContainer">
-  <model-viewer id="mv" src="Plato_01.glb" ar ar-modes="scene-viewer" camera-controls></model-viewer>
+  <model-viewer
+    id="mv"
+    src="Plato_01.glb"
+    ar
+    ar-modes="scene-viewer"
+    camera-controls
+    shadow-intensity="0"
+    exposure="1"
+    occlusion="false">
+  </model-viewer>
 </div>
 
-<!-- MENU -->
 <div id="startScreen">
   <div id="modelTitle">Plato 01</div>
 
@@ -129,84 +134,103 @@ model-viewer {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <div id="androidButtons">
-    <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
-    <button class="button" onclick="enterAFrame()">A-Frame</button>
-    <button class="button" onclick="enterModelViewer()">model-viewer</button>
-    <button class="button" onclick="enterARJS()">AR.js</button>
-  </div>
-
-  <div id="iosButton" style="display:none;">
-    <button class="button" onclick="enterQuickLook()">Ver en tu mesa</button>
-  </div>
+  <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
+  <button class="button" onclick="enterAFrame()">A-Frame</button>
+  <button class="button" onclick="enterModelViewer()">model-viewer</button>
 </div>
 
 <script>
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-const models = Array.from({length:15}, (_,i)=>({
-  name:`Plato ${String(i+1).padStart(2,"0")}`,
-  file:`Plato_${String(i+1).padStart(2,"0")}.glb`
-}));
+const models = [
+  { name:"Plato 01", file:"Plato_01.glb" },
+  { name:"Plato 02", file:"Plato_02.glb" },
+  { name:"Plato 03", file:"Plato_03.glb" },
+  { name:"Plato 04", file:"Plato_04.glb" },
+  { name:"Plato 05", file:"Plato_05.glb" },
+  { name:"Plato 06", file:"Plato_06.glb" },
+  { name:"Plato 07", file:"Plato_07.glb" },
+  { name:"Plato 08", file:"Plato_08.glb" },
+  { name:"Plato 09", file:"Plato_09.glb" },
+  { name:"Plato 10", file:"Plato_10.glb" },
+  { name:"Plato 11", file:"Plato_11.glb" },
+  { name:"Plato 12", file:"Plato_12.glb" },
+  { name:"Plato 13", file:"Plato_13.glb" },
+  { name:"Plato 14", file:"Plato_14.glb" },
+  { name:"Plato 15", file:"Plato_15.glb" }
+];
 
 let current = 0;
+let arMode = false;
+
+function activateARState() {
+  if (!arMode) {
+    history.replaceState({menu:true}, "");
+    history.pushState({ar:true}, "");
+    arMode = true;
+  }
+}
 
 function absoluteModelURL(file){
-  return location.origin + location.pathname.replace(/[^/]*$/, '') + file;
+  return window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + file;
 }
 
 function updateUI(){
-  modelTitle.innerText = models[current].name;
-  aframeModel.setAttribute("src", models[current].file);
-  mv.setAttribute("src", models[current].file);
-  arjsModel.setAttribute("src", models[current].file);
+  document.getElementById("modelTitle").innerText = models[current].name;
+  document.getElementById("aframeModel").setAttribute("src", models[current].file);
+  document.getElementById("mv").setAttribute("src", models[current].file);
 }
 
-function prev(){ current=(current-1+models.length)%models.length; updateUI(); }
-function next(){ current=(current+1)%models.length; updateUI(); }
+function prev(){
+  current = (current - 1 + models.length) % models.length;
+  updateUI();
+}
 
-// ✅ FIX REAL A-FRAME
+function next(){
+  current = (current + 1) % models.length;
+  updateUI();
+}
+
+// ✅ FIX REAL (sin romper nada)
 function enterAFrame(){
-  startScreen.style.display="none";
-  mvContainer.style.display="none";
-  arjsScene.style.display="none";
+  activateARState();
 
-  scene.style.display="block";
-  scene.emit("start");
+  const sceneEl = document.querySelector("#scene");
+
+  if (sceneEl.hasLoaded) {
+    sceneEl.systems["mindar-image"].start();
+  } else {
+    sceneEl.addEventListener("loaded", () => {
+      sceneEl.systems["mindar-image"].start();
+    });
+  }
+
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("mvContainer").style.display = "none";
 }
 
-// MODEL VIEWER
 function enterModelViewer(){
-  startScreen.style.display="none";
-  mvContainer.style.display="block";
+  activateARState();
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("mvContainer").style.display = "block";
 }
 
-// SCENE VIEWER
 function enterSceneViewer(){
-  const url = absoluteModelURL(models[current].file);
-  location.href = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(url)}#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
+  activateARState();
+
+  const modelURL = absoluteModelURL(models[current].file);
+  const fallbackURL = window.location.href;
+
+  const intent =
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
+  window.location.href = intent;
 }
 
-// AR.JS
-function enterARJS(){
-  startScreen.style.display="none";
-  scene.style.display="none";
-  mvContainer.style.display="none";
-
-  arjsScene.style.display="block";
-}
-
-// iOS
-function enterQuickLook(){
-  const usdz = models[current].file.replace(".glb",".usdz");
-  location.href = absoluteModelURL(usdz);
-}
-
-if(isIOS){
-  androidButtons.style.display="none";
-  iosButton.style.display="block";
-}
+window.addEventListener("popstate", function(){
+  arMode = false;
+  document.getElementById("mvContainer").style.display = "none";
+  document.getElementById("startScreen").style.display = "flex";
+});
 
 updateUI();
 
