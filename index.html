@@ -38,7 +38,7 @@ a-scene {
   flex-direction: column;
   justify-content:flex-end;
   align-items:center;
-  padding-bottom:20%;
+  padding-bottom:10%;
   z-index:30;
 }
 
@@ -81,17 +81,16 @@ a-scene {
   z-index: 20;
   background: transparent;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- MindAR A-frame scene -->
+<!-- MindAR / A-frame -->
 <a-scene
   id="mindarScene"
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
-  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
+  mindar-image="imageTargetSrc: targets.mind; autoStart: true; filterMinCF:0.0002; filterBeta:0.004;"
+  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure:3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
@@ -101,10 +100,10 @@ a-scene {
     <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
   </a-assets>
 
-  <a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
+  <a-entity environment-map="src: #hdrEnv; intensity:4.5"></a-entity>
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <a-entity mindar-image-target="targetIndex: 0">
+  <a-entity mindar-image-target="targetIndex:0">
     <a-gltf-model
       id="aframeModel"
       src="Plato_01.glb"
@@ -114,7 +113,7 @@ a-scene {
   </a-entity>
 </a-scene>
 
-<!-- AR.js scene container -->
+<!-- AR.js -->
 <div id="arjsContainer">
   <a-scene
     id="arjsScene"
@@ -185,7 +184,6 @@ function absoluteModelURL(file){
   return window.location.origin + window.location.pathname.replace(/[^/]*$/,'') + file;
 }
 
-// Activate AR state
 function activateARState(){
   if(!arMode){
     history.replaceState({menu:true},"");
@@ -198,10 +196,8 @@ function activateARState(){
 function enterSceneViewer(){
   activateARState();
   if(isIOS){
-    // Quick Look
     window.location.href = absoluteModelURL(models[current].usdz);
   } else {
-    // Android Scene Viewer
     const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(absoluteModelURL(models[current].file))}&mode=ar_preferred&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end;`;
     window.location.href = intent;
   }
