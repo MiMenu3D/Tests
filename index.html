@@ -8,6 +8,7 @@
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<script src="https://cdn.rawgit.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
 <style>
 html, body {
@@ -17,7 +18,7 @@ html, body {
   font-family: sans-serif;
 }
 
-a-scene {
+a-scene, #arjsScene {
   position: fixed;
   inset: 0;
   background: transparent;
@@ -85,6 +86,7 @@ model-viewer {
 
 <body>
 
+<!-- MindAR A-Frame -->
 <a-scene
   id="scene"
   mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
@@ -93,13 +95,11 @@ model-viewer {
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
 >
-
 <a-assets>
   <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
 </a-assets>
 
 <a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
-
 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
 <a-entity mindar-image-target="targetIndex: 0">
@@ -113,6 +113,20 @@ model-viewer {
 
 </a-scene>
 
+<!-- AR.js A-Frame -->
+<a-scene
+  id="arjsScene"
+  embedded
+  arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+  style="display:none;"
+>
+  <a-marker type="pattern" url="marker.patt">
+    <a-entity id="arjsModel" rotation="0 0 0" scale="0.08 0.08 0.08"></a-entity>
+  </a-marker>
+  <a-entity camera></a-entity>
+</a-scene>
+
+<!-- Model-viewer -->
 <div id="mvContainer">
   <model-viewer
     id="mv"
@@ -126,6 +140,7 @@ model-viewer {
   </model-viewer>
 </div>
 
+<!-- Menú principal -->
 <div id="startScreen">
   <div id="modelTitle">Plato 01</div>
 
@@ -137,10 +152,10 @@ model-viewer {
   <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
   <button class="button" onclick="enterAFrame()">A-Frame</button>
   <button class="button" onclick="enterModelViewer()">model-viewer</button>
+  <button class="button" onclick="enterARjs()">AR.js</button>
 </div>
 
 <script>
-
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" },
@@ -178,6 +193,8 @@ function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
   document.getElementById("aframeModel").setAttribute("src", models[current].file);
   document.getElementById("mv").setAttribute("src", models[current].file);
+  const arjsModel = document.getElementById("arjsModel");
+  if(arjsModel) arjsModel.setAttribute("gltf-model", models[current].file);
 }
 
 function prev(){
@@ -190,50 +207,58 @@ function next(){
   updateUI();
 }
 
-// 🔥 FIX DEFINITIVO A-FRAME
+// 🔥 Fix A-frame MindAR
 function enterAFrame(){
   activateARState();
-
   const sceneEl = document.querySelector("#scene");
   const mindarSystem = sceneEl.systems["mindar-image-system"];
-
   if (mindarSystem) {
     mindarSystem.stop();
     setTimeout(() => {
       mindarSystem.start();
     }, 50);
   }
-
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
+  document.getElementById("arjsScene").style.display = "none";
 }
 
+// Model-viewer
 function enterModelViewer(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
+  document.getElementById("arjsScene").style.display = "none";
 }
 
+// Scene Viewer
 function enterSceneViewer(){
   activateARState();
-
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
-
   const intent =
     `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
-
   window.location.href = intent;
+  document.getElementById("arjsScene").style.display = "none";
+}
+
+// 🔹 Nuevo: AR.js
+function enterARjs(){
+  activateARState();
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("mvContainer").style.display = "none";
+  document.getElementById("arjsScene").style.display = "block";
+  updateUI();
 }
 
 window.addEventListener("popstate", function(){
   arMode = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
+  document.getElementById("arjsScene").style.display = "none";
 });
 
 updateUI();
-
 </script>
 
 </body>
