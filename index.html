@@ -86,7 +86,8 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
+  id="scene"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -133,14 +134,12 @@ model-viewer {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <!-- Botones Android -->
   <div id="androidButtons">
     <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
     <button class="button" onclick="enterAFrame()">A-Frame</button>
     <button class="button" onclick="enterModelViewer()">model-viewer</button>
   </div>
 
-  <!-- Botón iOS -->
   <div id="iosButton" style="display:none;">
     <button class="button" onclick="enterQuickLook()">Ver en tu mesa</button>
   </div>
@@ -189,20 +188,18 @@ function updateUI(){
   document.getElementById("mv").setAttribute("src", models[current].file);
 }
 
-function prev(){
-  current = (current - 1 + models.length) % models.length;
-  updateUI();
-}
+function prev(){ current = (current - 1 + models.length) % models.length; updateUI(); }
+function next(){ current = (current + 1) % models.length; updateUI(); }
 
-function next(){
-  current = (current + 1) % models.length;
-  updateUI();
-}
-
-// ANDROID
-
+// ✅ FIX REAL
 function enterAFrame(){
   activateARState();
+
+  const sceneEl = document.querySelector("#scene");
+  const mindarSystem = sceneEl.systems["mindar-image"];
+
+  mindarSystem.start();
+
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
 }
@@ -225,21 +222,15 @@ function enterSceneViewer(){
   window.location.href = intent;
 }
 
-// iOS
-
 function enterQuickLook(){
   const usdz = models[current].file.replace(".glb",".usdz");
   window.location.href = absoluteModelURL(usdz);
 }
 
-// UI ADAPTATIVA
-
 if(isIOS){
   document.getElementById("androidButtons").style.display = "none";
   document.getElementById("iosButton").style.display = "block";
 }
-
-// BACK
 
 window.addEventListener("popstate", function(){
   arMode = false;
