@@ -86,8 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
-  id="scene"
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; filterMinCF: 0.0002; filterBeta: 0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -190,27 +189,8 @@ function next(){
   updateUI();
 }
 
-// 🔥 FIX DEFINITIVO
 function enterAFrame(){
   activateARState();
-
-  const sceneEl = document.querySelector("#scene");
-
-  const startAR = () => {
-    const mindar = sceneEl.components["mindar-image-system"];
-    if (mindar) {
-      mindar.start();
-    } else {
-      console.warn("MindAR no listo aún");
-    }
-  };
-
-  if (sceneEl.hasLoaded) {
-    startAR();
-  } else {
-    sceneEl.addEventListener("loaded", startAR);
-  }
-
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
 }
