@@ -86,6 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
+  id="scene"
   mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
@@ -189,8 +190,20 @@ function next(){
   updateUI();
 }
 
+// 🔥 FIX DEFINITIVO A-FRAME
 function enterAFrame(){
   activateARState();
+
+  const sceneEl = document.querySelector("#scene");
+  const mindarSystem = sceneEl.systems["mindar-image-system"];
+
+  if (mindarSystem) {
+    mindarSystem.stop();
+    setTimeout(() => {
+      mindarSystem.start();
+    }, 50);
+  }
+
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
 }
