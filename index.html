@@ -117,7 +117,7 @@ model-viewer {
     id="mv"
     src="Plato_01.glb"
     ar
-    ar-modes="webxr"
+    ar-modes="scene-viewer"
     camera-controls
     shadow-intensity="0"
     exposure="1"
@@ -133,17 +133,39 @@ model-viewer {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
-  <button class="button" onclick="enterAFrame()">A-Frame</button>
-  <button class="button" onclick="enterModelViewer()">model-viewer</button>
-  <button class="button" onclick="enterWebXR()">WebXR</button>
+  <!-- Botones Android -->
+  <div id="androidButtons">
+    <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
+    <button class="button" onclick="enterAFrame()">A-Frame</button>
+    <button class="button" onclick="enterModelViewer()">model-viewer</button>
+  </div>
+
+  <!-- Botón iOS -->
+  <div id="iosButton" style="display:none;">
+    <button class="button" onclick="enterQuickLook()">Ver en tu mesa</button>
+  </div>
 </div>
 
 <script>
 
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
-  { name:"Plato 02", file:"Plato_02.glb" }
+  { name:"Plato 02", file:"Plato_02.glb" },
+  { name:"Plato 03", file:"Plato_03.glb" },
+  { name:"Plato 04", file:"Plato_04.glb" },
+  { name:"Plato 05", file:"Plato_05.glb" },
+  { name:"Plato 06", file:"Plato_06.glb" },
+  { name:"Plato 07", file:"Plato_07.glb" },
+  { name:"Plato 08", file:"Plato_08.glb" },
+  { name:"Plato 09", file:"Plato_09.glb" },
+  { name:"Plato 10", file:"Plato_10.glb" },
+  { name:"Plato 11", file:"Plato_11.glb" },
+  { name:"Plato 12", file:"Plato_12.glb" },
+  { name:"Plato 13", file:"Plato_13.glb" },
+  { name:"Plato 14", file:"Plato_14.glb" },
+  { name:"Plato 15", file:"Plato_15.glb" }
 ];
 
 let current = 0;
@@ -177,6 +199,8 @@ function next(){
   updateUI();
 }
 
+// ANDROID
+
 function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
@@ -187,21 +211,6 @@ function enterModelViewer(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
-}
-
-function enterWebXR(){
-  activateARState();
-
-  const mv = document.getElementById("mv");
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("mvContainer").style.display = "block";
-
-  mv.setAttribute("ar-modes","webxr");
-
-  setTimeout(()=>{
-    mv.activateAR();
-  },300);
 }
 
 function enterSceneViewer(){
@@ -215,6 +224,22 @@ function enterSceneViewer(){
 
   window.location.href = intent;
 }
+
+// iOS
+
+function enterQuickLook(){
+  const usdz = models[current].file.replace(".glb",".usdz");
+  window.location.href = absoluteModelURL(usdz);
+}
+
+// UI ADAPTATIVA
+
+if(isIOS){
+  document.getElementById("androidButtons").style.display = "none";
+  document.getElementById("iosButton").style.display = "block";
+}
+
+// BACK
 
 window.addEventListener("popstate", function(){
   arMode = false;
