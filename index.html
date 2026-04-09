@@ -131,12 +131,14 @@ model-viewer {
     <button class="arrow" onclick="next()">→</button>
   </div>
 
-  <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
-  <button class="button" onclick="enterAFrame()">A-Frame</button>
-  <button class="button" onclick="enterModelViewer()">model-viewer</button>
+  <button class="button" id="btnSceneViewer" onclick="enterSceneViewer()">Scene Viewer</button>
+  <button class="button" id="btnAFrame" onclick="enterAFrame()">A-Frame</button>
+  <button class="button" id="btnModelViewer" onclick="enterModelViewer()">model-viewer</button>
 </div>
 
 <script>
+
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
@@ -202,6 +204,11 @@ function enterModelViewer(){
 function enterSceneViewer(){
   activateARState();
 
+  if(isIOS){
+    window.location.href = absoluteModelURL(models[current].file.replace('.glb','.usdz'));
+    return;
+  }
+
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
 
@@ -209,6 +216,13 @@ function enterSceneViewer(){
     `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
   window.location.href = intent;
+}
+
+// 🔹 Ajuste iOS (copiado del otro index)
+if(isIOS){
+  document.getElementById("btnSceneViewer").innerText = "Ver en tu mesa";
+  document.getElementById("btnAFrame").style.display = "none";
+  document.getElementById("btnModelViewer").style.display = "none";
 }
 
 window.addEventListener("popstate", function(){
