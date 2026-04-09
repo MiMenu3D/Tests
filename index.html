@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Test AR</title>
 
+<!-- A-Frame principal -->
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+<!-- AR.js oficial para A-Frame -->
 <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+<!-- model-viewer -->
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
@@ -85,9 +90,10 @@ model-viewer {
 
 <body>
 
+<!-- ESCENA A-FRAME con AR.js y marker -->
 <a-scene
   embedded
-  arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+  arjs="trackingMethod: pattern; sourceType: webcam; debugUIEnabled: false;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -100,6 +106,7 @@ model-viewer {
 
 <a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
 
+<!-- MARKER tipo Hiro personalizado -->
 <a-marker type="pattern" url="marker.patt">
   <a-gltf-model
     id="aframeModel"
@@ -113,6 +120,7 @@ model-viewer {
 
 </a-scene>
 
+<!-- model-viewer y menú intactos -->
 <div id="mvContainer">
   <model-viewer
     id="mv"
