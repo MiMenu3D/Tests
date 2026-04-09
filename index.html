@@ -17,10 +17,12 @@ html, body {
   font-family: sans-serif;
 }
 
+/* Cambio quirúrgico: Escena oculta por defecto para que no bloquee ni muestre cámara */
 a-scene {
   position: fixed;
   inset: 0;
   background: transparent;
+  display: none;
 }
 
 #mvContainer {
@@ -86,7 +88,8 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; filterMinCF: 0.0002; filterBeta: 0.004;"
+  id="mainScene"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -181,8 +184,8 @@ function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
-  // Única línea añadida para arrancar el motor solo aquí
-  document.querySelector('a-scene').systems['mindar-image-system'].start();
+  // Mostrar la escena solo al entrar
+  document.getElementById("mainScene").style.display = "block";
 }
 
 function enterModelViewer(){
@@ -221,9 +224,8 @@ function enterSceneViewer(){
 window.addEventListener("popstate", function(){
   arMode = false;
   document.getElementById("mvContainer").style.display = "none";
+  document.getElementById("mainScene").style.display = "none"; // Volver a ocultar
   document.getElementById("startScreen").style.display = "flex";
-  // Detenemos el motor al volver atrás para liberar la cámara
-  document.querySelector('a-scene').systems['mindar-image-system'].stop();
 });
 
 updateUI();
