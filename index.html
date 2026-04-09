@@ -117,7 +117,7 @@ model-viewer {
     id="mv"
     src="Plato_01.glb"
     ar
-    ar-modes="quick-look"
+    ar-modes="webxr"
     camera-controls
     shadow-intensity="0"
     exposure="1"
@@ -139,6 +139,7 @@ model-viewer {
 </div>
 
 <script>
+
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" }
@@ -189,9 +190,13 @@ function enterModelViewer(){
 
 function enterSceneViewer(){
   activateARState();
+
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
-  const intent = `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
+  const intent =
+    `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
   window.location.href = intent;
 }
 
@@ -202,6 +207,9 @@ window.addEventListener("popstate", function(){
 });
 
 updateUI();
+
 </script>
+
 </body>
 </html>
+
