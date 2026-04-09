@@ -86,7 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -117,7 +117,7 @@ model-viewer {
     id="mv"
     src="Plato_01.glb"
     ar
-    ar-modes="webxr"
+    ar-modes="quick-look"
     camera-controls
     shadow-intensity="0"
     exposure="1"
@@ -139,7 +139,6 @@ model-viewer {
 </div>
 
 <script>
-
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" }
@@ -180,10 +179,6 @@ function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
-  
-  const sceneEl = document.querySelector('a-scene');
-  const arSystem = sceneEl.systems['mindar-image-system'];
-  arSystem.start();
 }
 
 function enterModelViewer(){
@@ -194,13 +189,9 @@ function enterModelViewer(){
 
 function enterSceneViewer(){
   activateARState();
-
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
-
-  const intent =
-    `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
-
+  const intent = `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
   window.location.href = intent;
 }
 
@@ -208,15 +199,9 @@ window.addEventListener("popstate", function(){
   arMode = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
-  
-  const sceneEl = document.querySelector('a-scene');
-  const arSystem = sceneEl.systems['mindar-image-system'];
-  arSystem.stop();
 });
 
 updateUI();
-
 </script>
-
 </body>
 </html>
