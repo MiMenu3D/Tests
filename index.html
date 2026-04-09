@@ -21,7 +21,6 @@ a-scene {
   position: fixed;
   inset: 0;
   background: transparent;
-  z-index: 1; /* Bajo */
 }
 
 #mvContainer {
@@ -47,7 +46,7 @@ model-viewer {
   justify-content: flex-end;
   align-items: center;
   padding-bottom: 20%;
-  z-index: 30; /* El más alto para tapar la cámara */
+  z-index: 30;
 }
 
 #modelTitle {
@@ -86,8 +85,9 @@ model-viewer {
 
 <body>
 
+<!-- Cambio quirúrgico: autoStart: true para que no se cuelgue, pero uiLoading: no para que no se vea hasta pulsar el botón -->
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; uiLoading: no; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -192,10 +192,14 @@ function enterModelViewer(){
 
 function enterWebXR(){
   activateARState();
+
   const mv = document.getElementById("mv");
+
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
+
   mv.setAttribute("ar-modes","webxr");
+
   setTimeout(()=>{
     mv.activateAR();
   },300);
@@ -203,9 +207,13 @@ function enterWebXR(){
 
 function enterSceneViewer(){
   activateARState();
+
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
-  const intent = `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
+  const intent =
+    `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
   window.location.href = intent;
 }
 
@@ -216,6 +224,8 @@ window.addEventListener("popstate", function(){
 });
 
 updateUI();
+
 </script>
+
 </body>
 </html>
