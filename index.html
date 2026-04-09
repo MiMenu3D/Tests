@@ -86,7 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; uiLoading: no; uiScanning: no;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -181,11 +181,8 @@ function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
-  
-  // Arrancamos el motor MindAR manualmente
-  const sceneEl = document.querySelector('a-scene');
-  const arSystem = sceneEl.systems['mindar-image-system'];
-  arSystem.start();
+  // Única línea añadida para arrancar el motor solo aquí
+  document.querySelector('a-scene').systems['mindar-image-system'].start();
 }
 
 function enterModelViewer(){
@@ -225,11 +222,8 @@ window.addEventListener("popstate", function(){
   arMode = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
-  
-  // Detenemos el motor al volver
-  const sceneEl = document.querySelector('a-scene');
-  const arSystem = sceneEl.systems['mindar-image-system'];
-  arSystem.stop();
+  // Detenemos el motor al volver atrás para liberar la cámara
+  document.querySelector('a-scene').systems['mindar-image-system'].stop();
 });
 
 updateUI();
