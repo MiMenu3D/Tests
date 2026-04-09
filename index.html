@@ -17,12 +17,10 @@ html, body {
   font-family: sans-serif;
 }
 
-/* La escena se queda tal cual, pero con z-index bajo */
 a-scene {
   position: fixed;
   inset: 0;
   background: transparent;
-  z-index: 1;
 }
 
 #mvContainer {
@@ -39,7 +37,6 @@ model-viewer {
   background: #f2f2f2;
 }
 
-/* Único cambio quirúrgico: Subir el z-index de la pantalla de inicio */
 #startScreen {
   position: fixed;
   inset: 0;
@@ -49,7 +46,7 @@ model-viewer {
   justify-content: flex-end;
   align-items: center;
   padding-bottom: 20%;
-  z-index: 100; /* Asegura que tape el inicio de la cámara */
+  z-index: 30;
 }
 
 #modelTitle {
@@ -89,7 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -143,6 +140,7 @@ model-viewer {
 </div>
 
 <script>
+
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" }
@@ -183,6 +181,11 @@ function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
+  
+  // ARRANQUE MANUAL AL PULSAR (Como en Iron Skull)
+  const sceneEl = document.querySelector('a-scene');
+  const arSystem = sceneEl.systems['mindar-image-system'];
+  arSystem.start();
 }
 
 function enterModelViewer(){
@@ -214,9 +217,16 @@ window.addEventListener("popstate", function(){
   arMode = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
+  
+  // PARADA AL VOLVER (Liberar cámara)
+  const sceneEl = document.querySelector('a-scene');
+  const arSystem = sceneEl.systems['mindar-image-system'];
+  arSystem.stop();
 });
 
 updateUI();
+
 </script>
+
 </body>
 </html>
