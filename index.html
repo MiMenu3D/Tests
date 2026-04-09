@@ -86,8 +86,7 @@ model-viewer {
 <body>
 
 <a-scene
-  id="mainScene"
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false; filterMinCF: 0.0002; filterBeta: 0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -183,9 +182,9 @@ function enterAFrame(){
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
   
+  // Iniciamos el motor manualmente al entrar
   const sceneEl = document.querySelector('a-scene');
-  const arSystem = sceneEl.systems['mindar-image-system'];
-  arSystem.start(); 
+  sceneEl.systems['mindar-image-system'].start();
 }
 
 function enterModelViewer(){
@@ -226,12 +225,20 @@ window.addEventListener("popstate", function(){
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
   
+  // Paramos el motor al volver al menú
   const sceneEl = document.querySelector('a-scene');
-  const arSystem = sceneEl.systems['mindar-image-system'];
-  arSystem.stop();
+  sceneEl.systems['mindar-image-system'].stop();
 });
 
 updateUI();
+
+// Forzamos la parada al cargar la página para que el botón A-Frame sea el que lo active
+document.addEventListener("DOMContentLoaded", () => {
+  const sceneEl = document.querySelector('a-scene');
+  sceneEl.addEventListener("renderstart", () => {
+    sceneEl.systems['mindar-image-system'].stop();
+  });
+});
 
 </script>
 
