@@ -136,7 +136,6 @@ model-viewer {
   <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
   <button class="button" onclick="enterAFrame()">A-Frame</button>
   <button class="button" onclick="enterModelViewer()">model-viewer</button>
-  <button class="button" onclick="enterWebXR()">WebXR</button>
 </div>
 
 <script>
@@ -182,7 +181,6 @@ function enterAFrame(){
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
   
-  // ARRANQUE MANUAL AL PULSAR (Como en Iron Skull)
   const sceneEl = document.querySelector('a-scene');
   const arSystem = sceneEl.systems['mindar-image-system'];
   arSystem.start();
@@ -194,22 +192,15 @@ function enterModelViewer(){
   document.getElementById("mvContainer").style.display = "block";
 }
 
-function enterWebXR(){
-  activateARState();
-  const mv = document.getElementById("mv");
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("mvContainer").style.display = "block";
-  mv.setAttribute("ar-modes","webxr");
-  setTimeout(()=>{
-    mv.activateAR();
-  },300);
-}
-
 function enterSceneViewer(){
   activateARState();
+
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
-  const intent = `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
+  const intent =
+    `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+
   window.location.href = intent;
 }
 
@@ -218,7 +209,6 @@ window.addEventListener("popstate", function(){
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
   
-  // PARADA AL VOLVER (Liberar cámara)
   const sceneEl = document.querySelector('a-scene');
   const arSystem = sceneEl.systems['mindar-image-system'];
   arSystem.stop();
