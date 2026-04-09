@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Test AR</title>
 
-<!-- A-Frame principal -->
+<!-- A-Frame -->
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
-<!-- AR.js oficial para A-Frame -->
+<!-- AR.js compatible con marker .patt y A-Frame 1.4.2 -->
 <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar-nft.js"></script>
 
 <!-- model-viewer -->
@@ -90,7 +90,7 @@ model-viewer {
 
 <body>
 
-<!-- ESCENA A-FRAME con AR.js y marker -->
+<!-- Escena A-Frame + AR.js -->
 <a-scene
   embedded
   arjs="trackingMethod: pattern; sourceType: webcam; debugUIEnabled: false;"
@@ -106,7 +106,9 @@ model-viewer {
 
 <a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
 
-<!-- MARKER tipo Hiro personalizado -->
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+<!-- Marker custom Hiro -->
 <a-marker type="pattern" url="marker.patt">
   <a-gltf-model
     id="aframeModel"
@@ -116,15 +118,15 @@ model-viewer {
   </a-gltf-model>
 </a-marker>
 
-<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
 </a-scene>
 
-<!-- model-viewer y menú intactos -->
+<!-- Model-viewer -->
 <div id="mvContainer">
   <model-viewer
     id="mv"
     src="Plato_01.glb"
+    ar
+    ar-modes="webxr"
     camera-controls
     shadow-intensity="0"
     exposure="1"
@@ -132,6 +134,7 @@ model-viewer {
   </model-viewer>
 </div>
 
+<!-- Menú principal -->
 <div id="startScreen">
   <div id="modelTitle">Plato 01</div>
 
@@ -146,7 +149,6 @@ model-viewer {
 </div>
 
 <script>
-
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" },
@@ -227,7 +229,6 @@ window.addEventListener("popstate", function(){
 });
 
 updateUI();
-
 </script>
 
 </body>
