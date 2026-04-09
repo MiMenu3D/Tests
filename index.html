@@ -21,7 +21,7 @@ a-scene {
   position: fixed;
   inset: 0;
   background: transparent;
-  display: none; /* 🔴 NO arranca automáticamente */
+  display: none;
 }
 
 #mvContainer {
@@ -104,8 +104,7 @@ model-viewer {
 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
 <a-entity mindar-image-target="targetIndex: 0">
-  <a-gltf-model
-    id="aframeModel"
+  <a-gltf-model id="aframeModel"
     src="Plato_01.glb"
     rotation="90 0 0"
     scale="8 8 8">
@@ -115,8 +114,7 @@ model-viewer {
 </a-scene>
 
 <div id="mvContainer">
-  <model-viewer
-    id="mv"
+  <model-viewer id="mv"
     src="Plato_01.glb"
     camera-controls
     shadow-intensity="0"
@@ -142,6 +140,13 @@ model-viewer {
 
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
+if(isIOS){
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const scene = document.getElementById("scene");
+    if(scene) scene.remove(); // 🔴 eliminar completamente
+  });
+}
+
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" },
@@ -163,10 +168,10 @@ const models = [
 let current = 0;
 let arMode = false;
 
-function activateARState() {
-  if (!arMode) {
-    history.replaceState({menu:true}, "");
-    history.pushState({ar:true}, "");
+function activateARState(){
+  if(!arMode){
+    history.replaceState({menu:true},"");
+    history.pushState({ar:true},"");
     arMode = true;
   }
 }
@@ -177,19 +182,12 @@ function absoluteModelURL(file){
 
 function updateUI(){
   document.getElementById("modelTitle").innerText = models[current].name;
-  document.getElementById("aframeModel").setAttribute("src", models[current].file);
+  document.getElementById("aframeModel")?.setAttribute("src", models[current].file);
   document.getElementById("mv").setAttribute("src", models[current].file);
 }
 
-function prev(){
-  current = (current - 1 + models.length) % models.length;
-  updateUI();
-}
-
-function next(){
-  current = (current + 1) % models.length;
-  updateUI();
-}
+function prev(){ current = (current - 1 + models.length) % models.length; updateUI(); }
+function next(){ current = (current + 1) % models.length; updateUI(); }
 
 function enterAFrame(){
   activateARState();
@@ -201,7 +199,13 @@ function enterAFrame(){
 
   scene.style.display = "block";
 
-  scene.components["mindar-image-system"].start(); // 🔴 ARRANQUE MANUAL
+  if(scene.hasLoaded){
+    scene.components["mindar-image-system"].start();
+  } else {
+    scene.addEventListener("loaded", ()=>{
+      scene.components["mindar-image-system"].start();
+    }, {once:true});
+  }
 }
 
 function enterModelViewer(){
@@ -214,10 +218,7 @@ function enterSceneViewer(){
   activateARState();
 
   if(isIOS){
-    const link = document.createElement("a");
-    link.setAttribute("rel","ar");
-    link.setAttribute("href", absoluteModelURL(models[current].file.replace('.glb','.usdz')));
-    link.click();
+    window.location.href = absoluteModelURL(models[current].file.replace('.glb','.usdz'));
     return;
   }
 
@@ -225,29 +226,26 @@ function enterSceneViewer(){
   const fallbackURL = window.location.href;
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
+  `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
 
   window.location.href = intent;
 }
 
-// iOS ajustes
 if(isIOS){
   document.getElementById("btnSceneViewer").innerText = "Ver en tu mesa";
   document.getElementById("btnAFrame").style.display = "none";
   document.getElementById("btnModelViewer").style.display = "none";
 }
 
-// STOP TOTAL A-FRAME al volver
 window.addEventListener("popstate", function(){
   arMode = false;
 
   const scene = document.getElementById("scene");
 
-  if(scene.components["mindar-image-system"]){
+  if(scene && scene.components["mindar-image-system"]){
     scene.components["mindar-image-system"].stop();
+    scene.style.display = "none";
   }
-
-  scene.style.display = "none";
 
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
