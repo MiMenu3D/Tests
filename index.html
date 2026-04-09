@@ -181,10 +181,6 @@ function enterAFrame(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
-  
-  // Iniciamos el motor manualmente al entrar
-  const sceneEl = document.querySelector('a-scene');
-  sceneEl.systems['mindar-image-system'].start();
 }
 
 function enterModelViewer(){
@@ -224,21 +220,9 @@ window.addEventListener("popstate", function(){
   arMode = false;
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
-  
-  // Paramos el motor al volver al menú
-  const sceneEl = document.querySelector('a-scene');
-  sceneEl.systems['mindar-image-system'].stop();
 });
 
 updateUI();
-
-// Forzamos la parada al cargar la página para que el botón A-Frame sea el que lo active
-document.addEventListener("DOMContentLoaded", () => {
-  const sceneEl = document.querySelector('a-scene');
-  sceneEl.addEventListener("renderstart", () => {
-    sceneEl.systems['mindar-image-system'].stop();
-  });
-});
 
 </script>
 
