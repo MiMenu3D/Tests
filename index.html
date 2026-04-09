@@ -21,6 +21,7 @@ a-scene {
   position: fixed;
   inset: 0;
   background: transparent;
+  display: none; /* 🔴 NO arranca automáticamente */
 }
 
 #mvContainer {
@@ -86,7 +87,8 @@ model-viewer {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
+  id="scene"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: false;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -191,8 +193,15 @@ function next(){
 
 function enterAFrame(){
   activateARState();
+
+  const scene = document.getElementById("scene");
+
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
+
+  scene.style.display = "block";
+
+  scene.components["mindar-image-system"].start(); // 🔴 ARRANQUE MANUAL
 }
 
 function enterModelViewer(){
@@ -205,7 +214,10 @@ function enterSceneViewer(){
   activateARState();
 
   if(isIOS){
-    window.location.href = absoluteModelURL(models[current].file.replace('.glb','.usdz'));
+    const link = document.createElement("a");
+    link.setAttribute("rel","ar");
+    link.setAttribute("href", absoluteModelURL(models[current].file.replace('.glb','.usdz')));
+    link.click();
     return;
   }
 
@@ -218,15 +230,25 @@ function enterSceneViewer(){
   window.location.href = intent;
 }
 
-// 🔹 Ajuste iOS (copiado del otro index)
+// iOS ajustes
 if(isIOS){
   document.getElementById("btnSceneViewer").innerText = "Ver en tu mesa";
   document.getElementById("btnAFrame").style.display = "none";
   document.getElementById("btnModelViewer").style.display = "none";
 }
 
+// STOP TOTAL A-FRAME al volver
 window.addEventListener("popstate", function(){
   arMode = false;
+
+  const scene = document.getElementById("scene");
+
+  if(scene.components["mindar-image-system"]){
+    scene.components["mindar-image-system"].stop();
+  }
+
+  scene.style.display = "none";
+
   document.getElementById("mvContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
 });
