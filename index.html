@@ -117,7 +117,6 @@ model-viewer {
     id="mv"
     src="Plato_01.glb"
     ar
-    ar-modes="webxr"
     camera-controls
     shadow-intensity="0"
     exposure="1"
@@ -136,7 +135,6 @@ model-viewer {
   <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
   <button class="button" onclick="enterAFrame()">A-Frame</button>
   <button class="button" onclick="enterModelViewer()">model-viewer</button>
-  <button class="button" onclick="enterWebXR()">WebXR</button>
 </div>
 
 <script>
@@ -187,21 +185,6 @@ function enterModelViewer(){
   activateARState();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
-}
-
-function enterWebXR(){
-  activateARState();
-
-  const mv = document.getElementById("mv");
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("mvContainer").style.display = "block";
-
-  mv.setAttribute("ar-modes","webxr");
-
-  setTimeout(()=>{
-    mv.activateAR();
-  },300);
 }
 
 function enterSceneViewer(){
