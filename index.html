@@ -17,10 +17,12 @@ html, body {
   font-family: sans-serif;
 }
 
+/* La escena se queda tal cual, pero con z-index bajo */
 a-scene {
   position: fixed;
   inset: 0;
   background: transparent;
+  z-index: 1;
 }
 
 #mvContainer {
@@ -37,6 +39,7 @@ model-viewer {
   background: #f2f2f2;
 }
 
+/* Único cambio quirúrgico: Subir el z-index de la pantalla de inicio */
 #startScreen {
   position: fixed;
   inset: 0;
@@ -46,7 +49,7 @@ model-viewer {
   justify-content: flex-end;
   align-items: center;
   padding-bottom: 20%;
-  z-index: 30;
+  z-index: 100; /* Asegura que tape el inicio de la cámara */
 }
 
 #modelTitle {
@@ -85,9 +88,8 @@ model-viewer {
 
 <body>
 
-<!-- Cambio quirúrgico: autoStart: true para que no se cuelgue, pero uiLoading: no para que no se vea hasta pulsar el botón -->
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; uiLoading: no; filterMinCF: 0.0002; filterBeta: 0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
   renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled: false"
@@ -141,7 +143,6 @@ model-viewer {
 </div>
 
 <script>
-
 const models = [
   { name:"Plato 01", file:"Plato_01.glb" },
   { name:"Plato 02", file:"Plato_02.glb" }
@@ -192,14 +193,10 @@ function enterModelViewer(){
 
 function enterWebXR(){
   activateARState();
-
   const mv = document.getElementById("mv");
-
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "block";
-
   mv.setAttribute("ar-modes","webxr");
-
   setTimeout(()=>{
     mv.activateAR();
   },300);
@@ -207,13 +204,9 @@ function enterWebXR(){
 
 function enterSceneViewer(){
   activateARState();
-
   const modelURL = absoluteModelURL(models[current].file);
   const fallbackURL = window.location.href;
-
-  const intent =
-    `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
-
+  const intent = `intent://://google.com{encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(fallbackURL)};end;`;
   window.location.href = intent;
 }
 
@@ -224,8 +217,6 @@ window.addEventListener("popstate", function(){
 });
 
 updateUI();
-
 </script>
-
 </body>
 </html>
