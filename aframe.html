@@ -45,11 +45,23 @@ button {
   font-size: 16px;
 }
 
-#prueba {
+#selector {
   position: fixed;
-  top: 10px;
-  left: 10px;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+#selector button {
+  background: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
   color: black;
 }
 </style>
@@ -57,10 +69,18 @@ button {
 
 <body>
 
-<div id="prueba">Prueba 10</div>
+<div style="position:fixed;top:10px;left:10px;color:black;z-index:99999;">
+Prueba 11
+</div>
 
 <div id="ui">
   <button id="startBtn">Ver en tu mesa</button>
+</div>
+
+<div id="selector">
+  <button onclick="prev()">←</button>
+  <span id="label">Plato 01</span>
+  <button onclick="next()">→</button>
 </div>
 
 <a-scene
@@ -80,6 +100,7 @@ button {
 
 <a-entity mindar-image-target="targetIndex: 0">
   <a-gltf-model
+    id="model"
     src="Plato_01.glb"
     rotation="90 0 0"
     scale="8 8 8">
@@ -89,9 +110,37 @@ button {
 </a-scene>
 
 <script>
+
+const models = [
+  "Plato_01.glb","Plato_02.glb","Plato_03.glb","Plato_04.glb",
+  "Plato_05.glb","Plato_06.glb","Plato_07.glb","Plato_08.glb",
+  "Plato_09.glb","Plato_10.glb","Plato_11.glb","Plato_12.glb",
+  "Plato_13.glb","Plato_14.glb","Plato_15.glb"
+];
+
+let current = 0;
+
+function update(){
+  document.getElementById("model").setAttribute("src", models[current]);
+  document.getElementById("label").innerText = "Plato " + (current+1);
+}
+
+function prev(){
+  current = (current - 1 + models.length) % models.length;
+  update();
+}
+
+function next(){
+  current = (current + 1) % models.length;
+  update();
+}
+
 document.getElementById("startBtn").onclick = () => {
   document.getElementById("ui").style.display = "none";
 };
+
+update();
+
 </script>
 
 </body>
