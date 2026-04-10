@@ -1,19 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>A-Frame PRUEBA 05</title>
+
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* Indicador versión */
+#version {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  color: black;
+  z-index: 99999;
+}
+
+/* Pantalla inicial */
+#startScreen {
+  position: fixed;
+  inset: 0;
+  background: url("Loading screen.png") center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 140px;
+  z-index: 10;
+}
+
+button {
+  background: white;
+  color: black;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 16px;
+  border: none;
+}
+
+/* Escena */
+a-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
+</style>
+</head>
+
+<body>
+
+<div id="version">PRUEBA 05</div>
+
+<div id="startScreen">
+  <button id="startBtn">Ver en tu mesa</button>
+</div>
+
+<a-scene
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true; filterMinCF:0.0002; filterBeta:0.004;"
+  renderer="alpha:true; physicallyCorrectLights:true; colorManagement:true; exposure:3.5; toneMapping:ACESFilmicToneMapping;"
+  color-space="sRGB"
+  vr-mode-ui="enabled:false"
+  device-orientation-permission-ui="enabled:false"
+>
+
+  <!-- LUCES EXACTAS COMO INDEX -->
+  <a-light type="ambient" intensity="1.5"></a-light>
+  <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
+
+  <!-- CÁMARA -->
+  <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+
+  <!-- TARGET -->
+  <a-entity mindar-image-target="targetIndex:0">
+    <a-gltf-model
+      src="Plato_02.glb"
+      rotation="90 0 0"
+      scale="8 8 8">
+    </a-gltf-model>
+  </a-entity>
+
+</a-scene>
+
 <script>
 let arMode = false;
-let scene = document.querySelector("a-scene");
 
-// 🔥 FUNCIÓN CLAVE: parar cámara
+// 🔥 parar cámara correctamente
 function stopCamera(){
   const video = document.querySelector("video");
   if(video && video.srcObject){
     video.srcObject.getTracks().forEach(track => track.stop());
     video.srcObject = null;
-    console.log("Camera stopped");
   }
 }
 
 document.getElementById("startBtn").onclick = () => {
-
   document.getElementById("startScreen").style.display = "none";
 
   if(!arMode){
@@ -23,17 +115,18 @@ document.getElementById("startBtn").onclick = () => {
   }
 };
 
-// 🔥 VOLVER ATRÁS → PARAR CÁMARA
+// 🔥 botón atrás
 window.addEventListener("popstate", function(){
   arMode = false;
-
-  stopCamera(); // 👈 clave
-
+  stopCamera();
   document.getElementById("startScreen").style.display = "flex";
 });
 
-// 🔥 AL RECARGAR → LIMPIAR
+// 🔥 al recargar
 window.addEventListener("beforeunload", () => {
   stopCamera();
 });
 </script>
+
+</body>
+</html>
