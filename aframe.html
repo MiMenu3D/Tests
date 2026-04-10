@@ -3,10 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>A-Frame Safe</title>
+<title>A-Frame PRUEBA 03</title>
 
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<!-- Anti-caché -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js?v=3"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js?v=3"></script>
 
 <style>
 html, body {
@@ -19,7 +24,17 @@ html, body {
   font-family: sans-serif;
 }
 
-/* UI SIEMPRE VISIBLE */
+/* Indicador de versión */
+#version {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  color: white;
+  z-index: 99999;
+  font-size: 14px;
+}
+
+/* UI */
 #ui {
   position: fixed;
   inset: 0;
@@ -44,15 +59,12 @@ button {
 
 <body>
 
-<!-- UI -->
-<div style="position:fixed;top:10px;left:10px;color:white;z-index:99999;">
-PRUEBA v2
-</div>
+<div id="version">PRUEBA 03</div>
+
 <div id="ui">
   <button id="startBtn">Ver en tu mesa</button>
 </div>
 
-<!-- ESCENA -->
 <a-scene
   id="scene"
   embedded
@@ -61,13 +73,30 @@ PRUEBA v2
   color-space="sRGB"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
-
-  <a-assets>
-  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-</a-assets>
-
-<a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
 >
+
+  <!-- ASSETS -->
+  <a-assets>
+    <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+  </a-assets>
+
+  <!-- ILUMINACIÓN -->
+  <a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
+  <a-light type="ambient" intensity="1.5"></a-light>
+  <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
+
+  <!-- CÁMARA -->
+  <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+
+  <!-- TARGET + MODELO -->
+  <a-entity mindar-image-target="targetIndex:0">
+    <a-gltf-model
+      src="Plato_02.glb"
+      rotation="90 0 0"
+      scale="8 8 8">
+    </a-gltf-model>
+  </a-entity>
+
 </a-scene>
 
 <script>
@@ -88,7 +117,6 @@ document.getElementById("startBtn").addEventListener("click", () => {
       system.start();
       console.log("MindAR STARTED");
     } else {
-      console.log("MindAR not ready, retry...");
       setTimeout(tryStart, 300);
     }
   };
