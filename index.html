@@ -9,68 +9,43 @@
 
 <style>
 html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  font-family: sans-serif;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  font-family:sans-serif;
 }
 
-#mvContainer {
-  position: fixed;
-  inset: 0;
-  background: #f2f2f2;
-  display: none;
-  z-index: 20;
+#mvContainer{
+  position:fixed;
+  inset:0;
+  display:none;
+  z-index:20;
+  background: linear-gradient(180deg, #d6dbe0, #f3efe8);
 }
 
-model-viewer {
-  width: 100%;
-  height: 100%;
-  background: #f2f2f2;
+model-viewer{
+  width:100%;
+  height:100%;
+  background: transparent;
 }
 
-#startScreen {
-  position: fixed;
-  inset: 0;
-  background: url("Loading screen.png") center/cover no-repeat;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding-bottom: 20%;
-  z-index: 30;
+#startScreen{
+  position:fixed;
+  inset:0;
+  background:url("Loading screen.png") center/cover no-repeat;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:center;
+  padding-bottom:20%;
+  z-index:30;
 }
 
-#modelTitle {
-  font-size: 22px;
-  margin-bottom: 12px;
-  text-shadow: 0 0 10px black;
-  color: white;
-}
-
-.arrowContainer {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 10px;
-}
-
-.arrow {
-  font-size: 28px;
-  padding: 10px 16px;
-  background: rgba(255,255,255,0.9);
-  color: black;
-  border-radius: 12px;
-  border: none;
-}
-
-.button {
-  background: white;
-  color: black;
-  padding: 14px 28px;
-  border-radius: 30px;
-  font-size: 16px;
-  border: none;
-  margin: 6px;
+.button{
+  background:white;
+  border:none;
+  padding:14px 28px;
+  border-radius:30px;
 }
 </style>
 </head>
@@ -78,19 +53,7 @@ model-viewer {
 <body>
 
 <div id="startScreen">
-
-  <div id="prueba" style="color:black;">Prueba 12</div>
-
-  <div id="modelTitle">Plato 01</div>
-
-  <div class="arrowContainer">
-    <button class="arrow" onclick="prev()">←</button>
-    <button class="arrow" onclick="next()">→</button>
-  </div>
-
-  <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
-  <button class="button" onclick="enterModelViewer()">model-viewer</button>
-
+  <button class="button" onclick="openViewer()">Ver en tu mesa</button>
 </div>
 
 <div id="mvContainer">
@@ -98,75 +61,42 @@ model-viewer {
     id="mv"
     src="Plato_01.glb"
     camera-controls
-    shadow-intensity="0"
-    exposure="1"
-    ar
-    ar-modes="webxr scene-viewer quick-look"
     disable-zoom
+    exposure="1"
+    shadow-intensity="0"
   ></model-viewer>
 </div>
 
 <script>
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-const models = [
-  { name:"Plato 01", file:"Plato_01.glb" },
-  { name:"Plato 02", file:"Plato_02.glb" },
-  { name:"Plato 03", file:"Plato_03.glb" },
-  { name:"Plato 04", file:"Plato_04.glb" },
-  { name:"Plato 05", file:"Plato_05.glb" },
-  { name:"Plato 06", file:"Plato_06.glb" },
-  { name:"Plato 07", file:"Plato_07.glb" },
-  { name:"Plato 08", file:"Plato_08.glb" },
-  { name:"Plato 09", file:"Plato_09.glb" },
-  { name:"Plato 10", file:"Plato_10.glb" },
-  { name:"Plato 11", file:"Plato_11.glb" },
-  { name:"Plato 12", file:"Plato_12.glb" },
-  { name:"Plato 13", file:"Plato_13.glb" },
-  { name:"Plato 14", file:"Plato_14.glb" },
-  { name:"Plato 15", file:"Plato_15.glb" }
-];
-
 let current = 0;
 
-function updateUI(){
-  document.getElementById("modelTitle").innerText = models[current].name;
-  document.getElementById("mv").setAttribute("src", models[current].file);
+const models = [
+ "Plato_01.glb","Plato_02.glb","Plato_03.glb","Plato_04.glb",
+ "Plato_05.glb","Plato_06.glb","Plato_07.glb","Plato_08.glb",
+ "Plato_09.glb","Plato_10.glb","Plato_11.glb","Plato_12.glb",
+ "Plato_13.glb","Plato_14.glb","Plato_15.glb"
+];
+
+function getURL(file){
+  return location.origin + location.pathname.replace(/[^/]*$/,'') + file;
 }
 
-function prev(){
-  current = (current - 1 + models.length) % models.length;
-  updateUI();
-}
+function openViewer(){
+  const file = getURL(models[current]);
 
-function next(){
-  current = (current + 1) % models.length;
-  updateUI();
-}
-
-function enterModelViewer(){
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("mvContainer").style.display = "block";
-}
-
-function enterSceneViewer(){
-
-  const modelURL =
-    location.origin + location.pathname.replace(/[^/]*$/, '') + models[current].file;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if(isIOS){
-    window.location.href = modelURL.replace(".glb",".usdz");
+    window.location.href = file.replace(".glb",".usdz");
     return;
   }
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&scale=fixed#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
+`intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(file)}&mode=ar_preferred&disable_fusion=true&scale=fixed#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
 
   window.location.href = intent;
 }
-
-updateUI();
 
 </script>
 
