@@ -10,137 +10,89 @@
 
 <style>
 html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
-  background: transparent;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  width:100vw;
+  height:100vh;
+  background:black;
 }
 
-a-scene {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+a-scene{
+  position:fixed;
+  inset:0;
 }
 
-#ui {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  flex-direction: column;
-  padding-bottom: 150px;
-  background: url("Loading screen.png") center/cover no-repeat;
-  z-index: 10;
+#ui{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  padding-bottom:120px;
+  background:url("Loading screen.png") center/cover no-repeat;
+  z-index:10;
 }
 
-button {
-  padding: 14px 28px;
-  border-radius: 30px;
-  border: none;
-  background: white;
-  color: black;
-  font-size: 16px;
-}
-
-#selector {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-}
-
-#selector button {
-  background: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-  color: black;
+button{
+  padding:14px 28px;
+  border-radius:30px;
+  border:none;
+  background:white;
 }
 </style>
 </head>
 
 <body>
 
-<div style="position:fixed;top:10px;left:10px;color:black;z-index:99999;">
-Prueba 12
-</div>
-
 <div id="ui">
   <button id="startBtn">Ver en tu mesa</button>
 </div>
 
-<div id="selector">
-  <button onclick="prev()">←</button>
-  <span id="label">Plato 01</span>
-  <button onclick="next()">→</button>
-</div>
-
 <a-scene
-  renderer="alpha:true; antialias:true; colorManagement:true;"
+  id="scene"
+  renderer="alpha:true"
   mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true; filterMinCF:0.0002; filterBeta:0.004;"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
 
-<a-assets>
-  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-</a-assets>
-
-<a-entity environment-map="src:#hdrEnv; intensity:4.5"></a-entity>
-
-<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
-
 <a-entity mindar-image-target="targetIndex:0">
-  <a-gltf-model
-    id="model"
-    src="Plato_01.glb"
-    rotation="90 0 0"
-    scale="8 8 8">
-  </a-gltf-model>
+  <a-gltf-model src="Plato_01.glb" scale="8 8 8"></a-gltf-model>
 </a-entity>
 
 </a-scene>
 
 <script>
 
-const models = [
-  "Plato_01.glb","Plato_02.glb","Plato_03.glb","Plato_04.glb",
-  "Plato_05.glb","Plato_06.glb","Plato_07.glb","Plato_08.glb",
-  "Plato_09.glb","Plato_10.glb","Plato_11.glb","Plato_12.glb",
-  "Plato_13.glb","Plato_14.glb","Plato_15.glb"
-];
+let started=false;
 
-let current = 0;
+function enterAR(){
 
-function update(){
-  document.getElementById("model").setAttribute("src", models[current]);
-  document.getElementById("label").innerText = "Plato " + (current+1);
+  if(started) return;
+  started=true;
+
+  // 🔥 FIX BACK BUTTON REAL
+  history.replaceState({menu:true}, "");
+  history.pushState({ar:true}, "");
+
+  document.getElementById("ui").style.display="none";
+
+  const scene = document.querySelector("a-scene");
+
+  const system = scene.systems["mindar-image-system"];
+  if(system && system.start){
+    system.start();
+  }
 }
 
-function prev(){
-  current = (current - 1 + models.length) % models.length;
-  update();
-}
+// BACK FIX
+window.addEventListener("popstate", (e)=>{
+  document.getElementById("ui").style.display="flex";
+  started=false;
+});
 
-function next(){
-  current = (current + 1) % models.length;
-  update();
-}
-
-document.getElementById("startBtn").onclick = () => {
-  document.getElementById("ui").style.display = "none";
-};
-
-update();
+document.getElementById("startBtn").onclick = enterAR;
 
 </script>
 
