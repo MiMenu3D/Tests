@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>PRUEBA 07</title>
+<title>PRUEBA 08</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -12,59 +12,57 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
   font-family: sans-serif;
+  background: white;
 }
 
+/* ESCENA */
 a-scene {
   position: fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  background: transparent;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
 }
 
+/* UI */
 #startScreen {
   position: fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  background: url("Loading screen.png") center/cover no-repeat;
-  display:flex;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   flex-direction: column;
-  justify-content:flex-end;
-  align-items:center;
-  gap:12px;
-  padding-bottom:150px;
-  z-index:10;
+  padding-bottom: 150px;
+  background: url("Loading screen.png") center/cover no-repeat;
+  z-index: 9999;
 }
 
 button {
-  background:white;
-  color:black;
-  padding:14px 28px;
-  border-radius:30px;
-  font-size:16px;
-  border:none;
+  background: white;
+  color: black;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 16px;
+  border: none;
 }
 
+/* DEBUG VISUAL */
 #version {
   position: fixed;
-  top:10px;
-  left:10px;
-  color:black;
-  z-index:9999;
+  top: 10px;
+  left: 10px;
+  z-index: 99999;
+  color: black;
 }
 </style>
 </head>
 
 <body>
 
-<div id="version">PRUEBA 07</div>
+<div id="version">PRUEBA 08</div>
 
 <div id="startScreen">
   <button id="btnStart">Ver en tu mesa</button>
@@ -77,12 +75,6 @@ button {
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
-
-<a-assets>
-  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-</a-assets>
-
-<a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
 
 <a-light type="ambient" intensity="1.5"></a-light>
 <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
@@ -100,29 +92,20 @@ button {
 </a-scene>
 
 <script>
-let arMode = false;
+let arActive = false;
 
-function stopCamera(){
-  const video = document.querySelector("video");
-  if(video && video.srcObject){
-    video.srcObject.getTracks().forEach(track => track.stop());
-    video.srcObject = null;
-  }
-}
-
-document.getElementById("btnStart").onclick = () => {
+document.getElementById("btnStart").addEventListener("click", () => {
   document.getElementById("startScreen").style.display = "none";
 
-  if(!arMode){
+  if(!arActive){
     history.replaceState({menu:true},"");
     history.pushState({ar:true},"");
-    arMode = true;
+    arActive = true;
   }
-};
+});
 
-window.addEventListener("popstate", function(){
-  arMode = false;
-  stopCamera();
+window.addEventListener("popstate", () => {
+  arActive = false;
   document.getElementById("startScreen").style.display = "flex";
 });
 </script>
