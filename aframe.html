@@ -3,47 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>A-Frame PRUEBA 03</title>
+<title>A-Frame PRUEBA 04</title>
 
-<!-- Anti-caché -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js?v=3"></script>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js?v=3"></script>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
 <style>
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   width: 100vw;
   height: 100vh;
-  background: black;
+  overflow: hidden;
   font-family: sans-serif;
 }
 
-/* Indicador de versión */
+/* Texto versión */
 #version {
   position: fixed;
   top: 10px;
   left: 10px;
-  color: white;
+  color: black;
   z-index: 99999;
-  font-size: 14px;
 }
 
-/* UI */
-#ui {
+/* Pantalla inicial */
+#startScreen {
   position: fixed;
   inset: 0;
+  background: url("Loading screen.png") center/cover no-repeat;
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  padding-bottom: 120px;
-  z-index: 9999;
-  background: url("Loading screen.png") center/cover no-repeat;
+  padding-bottom: 140px;
+  z-index: 10;
 }
 
 button {
@@ -54,74 +47,71 @@ button {
   font-size: 16px;
   border: none;
 }
+
+/* ESCENA EXACTA A INDEX */
+a-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
 </style>
 </head>
 
 <body>
 
-<div id="version">PRUEBA 03</div>
+<div id="version">PRUEBA 04</div>
 
-<div id="ui">
+<div id="startScreen">
   <button id="startBtn">Ver en tu mesa</button>
 </div>
 
 <a-scene
-  id="scene"
-  embedded
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false; filterMinCF:0.0002; filterBeta:0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true; filterMinCF:0.0002; filterBeta:0.004;"
   renderer="alpha:true; physicallyCorrectLights:true; colorManagement:true; exposure:3.5; toneMapping:ACESFilmicToneMapping;"
   color-space="sRGB"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
 
-  <!-- ASSETS -->
-  <a-assets>
-    <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-  </a-assets>
+<a-assets>
+  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+</a-assets>
 
-  <!-- ILUMINACIÓN -->
-  <a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
-  <a-light type="ambient" intensity="1.5"></a-light>
-  <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
+<a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
+<a-light type="ambient" intensity="1.5"></a-light>
+<a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
 
-  <!-- CÁMARA -->
-  <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-  <!-- TARGET + MODELO -->
-  <a-entity mindar-image-target="targetIndex:0">
-    <a-gltf-model
-      src="Plato_02.glb"
-      rotation="90 0 0"
-      scale="8 8 8">
-    </a-gltf-model>
-  </a-entity>
+<a-entity mindar-image-target="targetIndex:0">
+  <a-gltf-model
+    src="Plato_02.glb"
+    rotation="90 0 0"
+    scale="8 8 8">
+  </a-gltf-model>
+</a-entity>
 
 </a-scene>
 
 <script>
-let started = false;
+let arMode = false;
 
-document.getElementById("startBtn").addEventListener("click", () => {
-  if (started) return;
-  started = true;
+document.getElementById("startBtn").onclick = () => {
+  document.getElementById("startScreen").style.display = "none";
 
-  document.getElementById("ui").style.display = "none";
+  if(!arMode){
+    history.replaceState({menu:true},"");
+    history.pushState({ar:true},"");
+    arMode = true;
+  }
+};
 
-  const scene = document.querySelector("a-scene");
-
-  const tryStart = () => {
-    const system = scene.systems["mindar-image-system"];
-
-    if (system && system.start) {
-      system.start();
-      console.log("MindAR STARTED");
-    } else {
-      setTimeout(tryStart, 300);
-    }
-  };
-
-  tryStart();
+// VOLVER ATRÁS (LO QUE PEDÍAS)
+window.addEventListener("popstate", function(){
+  arMode = false;
+  document.getElementById("startScreen").style.display = "flex";
 });
 </script>
 
