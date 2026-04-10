@@ -31,7 +31,7 @@ html, body {
   device-orientation-permission-ui="enabled:false"
 >
 
-  <!-- Luces (mínimas pero suficientes) -->
+  <!-- Luces -->
   <a-light type="ambient" intensity="1.3"></a-light>
   <a-light type="directional" position="2 4 3" intensity="1.8"></a-light>
 
@@ -49,42 +49,49 @@ html, body {
 
 </a-scene>
 
-<!-- CONTROL DE INICIO SEGURO -->
 <script>
-let started = false;
-
-function startMindARSafe() {
-  if (started) return;
-  started = true;
-
-  const scene = document.querySelector("a-scene");
-
-  if (!scene) return;
-
-  // Esperar a que A-Frame esté realmente listo
-  if (scene.hasLoaded) {
-    launch();
-  } else {
-    scene.addEventListener("loaded", launch);
-  }
-
-  function launch() {
-    setTimeout(() => {
-      try {
-        const system = scene.systems["mindar-image-system"];
-        if (system) {
-          system.start();
-        }
-      } catch (e) {
-        console.warn("MindAR start error:", e);
-      }
-    }, 1200);
+/* =========================
+   RESET CÁMARA (CLAVE)
+========================= */
+async function resetCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    stream.getTracks().forEach(track => track.stop());
+  } catch (e) {
+    console.log("Camera reset skipped:", e);
   }
 }
 
-// Arranque controlado (NO inmediato)
-window.addEventListener("load", () => {
-  setTimeout(startMindARSafe, 1000);
+/* =========================
+   ARRANQUE SEGURO MINDAR
+========================= */
+let started = false;
+
+window.addEventListener("load", async () => {
+  if (started) return;
+  started = true;
+
+  // Reset cámara antes de iniciar todo
+  await resetCamera();
+
+  setTimeout(() => {
+    const scene = document.querySelector("a-scene");
+
+    if (!scene) return;
+
+    scene.addEventListener("loaded", () => {
+      setTimeout(() => {
+        try {
+          const system = scene.systems["mindar-image-system"];
+          if (system) {
+            system.start();
+          }
+        } catch (e) {
+          console.warn("MindAR start error:", e);
+        }
+      }, 1200);
+    });
+  }, 800);
 });
 </script>
 
