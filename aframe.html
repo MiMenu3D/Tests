@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>PRUEBA 06</title>
+<title>PRUEBA 07</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -18,7 +18,6 @@ html, body {
   font-family: sans-serif;
 }
 
-/* ESCENA EXACTA */
 a-scene {
   position: fixed;
   top:0;
@@ -28,15 +27,18 @@ a-scene {
   background: transparent;
 }
 
-/* UI */
 #startScreen {
   position: fixed;
-  inset: 0;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
   background: url("Loading screen.png") center/cover no-repeat;
   display:flex;
+  flex-direction: column;
   justify-content:flex-end;
   align-items:center;
-  flex-direction: column;
+  gap:12px;
   padding-bottom:150px;
   z-index:10;
 }
@@ -62,7 +64,7 @@ button {
 
 <body>
 
-<div id="version">PRUEBA 06</div>
+<div id="version">PRUEBA 07</div>
 
 <div id="startScreen">
   <button id="btnStart">Ver en tu mesa</button>
@@ -122,10 +124,6 @@ window.addEventListener("popstate", function(){
   arMode = false;
   stopCamera();
   document.getElementById("startScreen").style.display = "flex";
-});
-
-window.addEventListener("beforeunload", () => {
-  stopCamera();
 });
 </script>
 
