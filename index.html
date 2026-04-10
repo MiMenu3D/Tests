@@ -79,7 +79,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 11</div>
+  <div id="prueba" style="color:black;">Prueba 12</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -90,7 +90,6 @@ model-viewer {
 
   <button class="button" onclick="enterSceneViewer()">Scene Viewer</button>
   <button class="button" onclick="enterModelViewer()">model-viewer</button>
-  <button class="button" onclick="enterAFrame()">A-Frame</button>
 
 </div>
 
@@ -101,8 +100,10 @@ model-viewer {
     camera-controls
     shadow-intensity="0"
     exposure="1"
-    occlusion="false">
-  </model-viewer>
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    disable-zoom
+  ></model-viewer>
 </div>
 
 <script>
@@ -150,7 +151,9 @@ function enterModelViewer(){
 }
 
 function enterSceneViewer(){
-  const modelURL = location.origin + location.pathname.replace(/[^/]*$/, '') + models[current].file;
+
+  const modelURL =
+    location.origin + location.pathname.replace(/[^/]*$/, '') + models[current].file;
 
   if(isIOS){
     window.location.href = modelURL.replace(".glb",".usdz");
@@ -158,13 +161,9 @@ function enterSceneViewer(){
   }
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&scale=fixed#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
 
   window.location.href = intent;
-}
-
-function enterAFrame(){
-  window.location.href = "aframe.html";
 }
 
 updateUI();
