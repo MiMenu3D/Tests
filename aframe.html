@@ -75,17 +75,29 @@ button {
 </a-scene>
 
 <script>
+let started = false;
+
 document.getElementById("startBtn").addEventListener("click", () => {
+  if (started) return;
+  started = true;
+
   document.getElementById("ui").style.display = "none";
 
   const scene = document.querySelector("a-scene");
 
-  scene.addEventListener("loaded", () => {
-    setTimeout(() => {
-      const system = scene.systems["mindar-image-system"];
-      if (system) system.start();
-    }, 500);
-  });
+  const tryStart = () => {
+    const system = scene.systems["mindar-image-system"];
+
+    if (system && system.start) {
+      system.start();
+      console.log("MindAR STARTED");
+    } else {
+      console.log("MindAR not ready, retry...");
+      setTimeout(tryStart, 300);
+    }
+  };
+
+  tryStart();
 });
 </script>
 
