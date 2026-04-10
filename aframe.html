@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>PRUEBA 08</title>
+<title>A-Frame AR</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -12,23 +12,19 @@
 html, body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   font-family: sans-serif;
-  background: white;
+  background: black;
 }
 
-/* ESCENA */
 a-scene {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
 }
 
-/* UI */
-#startScreen {
+#ui {
   position: fixed;
   inset: 0;
   display: flex;
@@ -37,24 +33,23 @@ a-scene {
   flex-direction: column;
   padding-bottom: 150px;
   background: url("Loading screen.png") center/cover no-repeat;
-  z-index: 9999;
+  z-index: 10;
 }
 
 button {
-  background: white;
-  color: black;
   padding: 14px 28px;
   border-radius: 30px;
-  font-size: 16px;
   border: none;
+  background: white;
+  color: black;
+  font-size: 16px;
 }
 
-/* DEBUG VISUAL */
-#version {
+#prueba {
   position: fixed;
   top: 10px;
   left: 10px;
-  z-index: 99999;
+  z-index: 9999;
   color: black;
 }
 </style>
@@ -62,28 +57,30 @@ button {
 
 <body>
 
-<div id="version">PRUEBA 08</div>
+<div id="prueba">Prueba 10</div>
 
-<div id="startScreen">
-  <button id="btnStart">Ver en tu mesa</button>
+<div id="ui">
+  <button id="startBtn">Ver en tu mesa</button>
 </div>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true; filterMinCF:0.0002; filterBeta:0.004;"
-  renderer="alpha:true; physicallyCorrectLights:true; colorManagement:true; exposure:3.5; toneMapping:ACESFilmicToneMapping;"
-  color-space="sRGB"
-  vr-mode-ui="enabled:false"
-  device-orientation-permission-ui="enabled:false"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
+  renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
 >
 
-<a-light type="ambient" intensity="1.5"></a-light>
-<a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
+<a-assets>
+  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+</a-assets>
 
-<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+<a-entity environment-map="src: #hdrEnv; intensity: 4.5"></a-entity>
 
-<a-entity mindar-image-target="targetIndex:0">
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+<a-entity mindar-image-target="targetIndex: 0">
   <a-gltf-model
-    src="Plato_02.glb"
+    src="Plato_01.glb"
     rotation="90 0 0"
     scale="8 8 8">
   </a-gltf-model>
@@ -92,22 +89,9 @@ button {
 </a-scene>
 
 <script>
-let arActive = false;
-
-document.getElementById("btnStart").addEventListener("click", () => {
-  document.getElementById("startScreen").style.display = "none";
-
-  if(!arActive){
-    history.replaceState({menu:true},"");
-    history.pushState({ar:true},"");
-    arActive = true;
-  }
-});
-
-window.addEventListener("popstate", () => {
-  arActive = false;
-  document.getElementById("startScreen").style.display = "flex";
-});
+document.getElementById("startBtn").onclick = () => {
+  document.getElementById("ui").style.display = "none";
+};
 </script>
 
 </body>
