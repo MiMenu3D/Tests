@@ -61,6 +61,12 @@ PRUEBA v2
   color-space="sRGB"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
+
+  <a-assets>
+  <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+</a-assets>
+
+<a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
 >
 </a-scene>
 
