@@ -10,11 +10,12 @@
 
 <style>
 html, body {
-  margin:0;
-  padding:0;
-  overflow:hidden;
-  width:100vw;
-  height:100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: black;
 }
 </style>
 </head>
@@ -22,29 +23,22 @@ html, body {
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; filterMinCF:0.0002; filterBeta:0.004;"
-  renderer="alpha:true; physicallyCorrectLights:true; colorManagement:true; exposure:3.5; toneMapping:ACESFilmicToneMapping;"
+  embedded
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false; filterMinCF:0.0002; filterBeta:0.004;"
+  renderer="alpha:true; physicallyCorrectLights:true; colorManagement:true;"
   color-space="sRGB"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
 
-  <!-- ASSETS (IMPORTANTÍSIMO: igual que index) -->
-  <a-assets>
-    <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-  </a-assets>
+  <!-- Luces (mínimas pero suficientes) -->
+  <a-light type="ambient" intensity="1.3"></a-light>
+  <a-light type="directional" position="2 4 3" intensity="1.8"></a-light>
 
-  <!-- ENVIRONMENT (esto puede ser CLAVE) -->
-  <a-entity environment-map="src:#hdrEnv; intensity:5"></a-entity>
-
-  <!-- LUCES -->
-  <a-light type="ambient" intensity="1.5"></a-light>
-  <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
-
-  <!-- CÁMARA -->
+  <!-- Cámara -->
   <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-  <!-- TARGET -->
+  <!-- Target -->
   <a-entity mindar-image-target="targetIndex:0">
     <a-gltf-model
       src="Plato_02.glb"
@@ -54,6 +48,45 @@ html, body {
   </a-entity>
 
 </a-scene>
+
+<!-- CONTROL DE INICIO SEGURO -->
+<script>
+let started = false;
+
+function startMindARSafe() {
+  if (started) return;
+  started = true;
+
+  const scene = document.querySelector("a-scene");
+
+  if (!scene) return;
+
+  // Esperar a que A-Frame esté realmente listo
+  if (scene.hasLoaded) {
+    launch();
+  } else {
+    scene.addEventListener("loaded", launch);
+  }
+
+  function launch() {
+    setTimeout(() => {
+      try {
+        const system = scene.systems["mindar-image-system"];
+        if (system) {
+          system.start();
+        }
+      } catch (e) {
+        console.warn("MindAR start error:", e);
+      }
+    }, 1200);
+  }
+}
+
+// Arranque controlado (NO inmediato)
+window.addEventListener("load", () => {
+  setTimeout(startMindARSafe, 1000);
+});
+</script>
 
 </body>
 </html>
