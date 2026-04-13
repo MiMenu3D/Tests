@@ -161,7 +161,7 @@ function enterSceneViewer(){
   }
 
   const intent =
-    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&scale=fixed#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
+    `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelURL)}&mode=ar_preferred&resizable=false&disable_occlusion=true#Intent;scheme=https;package=com.google.android.googlequicksearchbox;end;`;
 
   window.location.href = intent;
 }
