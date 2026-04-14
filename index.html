@@ -31,7 +31,6 @@ model-viewer {
   height: 100%;
   background: transparent;
   filter: saturate(0.85) contrast(0.88);
-  transition: opacity 0.35s ease;
 }
 
 #startScreen {
@@ -87,7 +86,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 38</div>
+  <div id="prueba" style="color:black;">Prueba 39</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -147,8 +146,21 @@ const models = [
 let current = 0;
 
 function updateUI(){
+  const mv = document.getElementById("mv");
+
   document.getElementById("modelTitle").innerText = models[current].name;
-  document.getElementById("mv").setAttribute("src", models[current].file);
+
+  // fade out inmediato
+  mv.style.opacity = "0";
+
+  // cambiar modelo
+  mv.setAttribute("src", models[current].file);
+
+  // cuando cargue → fade in limpio
+  mv.addEventListener("load", () => {
+  mv.style.transition = "opacity 0.4s ease";
+  mv.style.opacity = "1";
+}, { once: true });
 }
 
 function prev(){
@@ -183,6 +195,18 @@ mvContainer.innerHTML = "";
   window.location.href = intent;
 }
 
+const mvInit = document.getElementById("mv");
+
+// empezar oculto
+mvInit.style.opacity = "0";
+
+// fade inicial limpio
+mvInit.addEventListener("load", () => {
+  mvInit.style.transition = "opacity 0.5s ease";
+  mvInit.style.opacity = "1";
+}, { once: true });
+
+// AHORA sí
 updateUI();
 
 window.addEventListener("focus", () => {
@@ -208,15 +232,17 @@ window.addEventListener("focus", () => {
       interaction-prompt="none"
       shadow-intensity="0.5"
       exposure="0.72"
-      style="background-color:#1f1a17; opacity:0; transition: opacity 0.4s ease;"
+      style="background-color:#1f1a17;"
     ></model-viewer>
   `;
 
   const mv = document.getElementById("mv");
 
-  // fade-in real
-  mv.addEventListener("load", () => {
-    mv.style.opacity = "1";
+ mv.style.opacity = "0";
+
+mv.addEventListener("load", () => {
+  mv.style.transition = "opacity 0.4s ease";
+  mv.style.opacity = "1";
   });
 
 });
