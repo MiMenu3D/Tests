@@ -86,7 +86,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 26</div>
+  <div id="prueba" style="color:black;">Prueba 27</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -107,12 +107,15 @@ model-viewer {
   auto-rotate
   auto-rotate-delay="0"
   rotation-per-second="20deg"
+  mv.cameraOrbit = "0deg 55deg 45%";
+  mv.minCameraOrbit = "0deg 45deg 45%";
+  mv.maxCameraOrbit = "0deg 75deg 45%";
   camera-controls="false"
   touch-action="none"
   disable-pan
   disable-zoom
   interaction-prompt="none"
-  shadow-intensity="8"
+  shadow-intensity="0.5"
   exposure="0.75"
   style="background-color:#3a332b;"
 ></model-viewer>
@@ -175,14 +178,6 @@ function enterSceneViewer(){
 }
 
 updateUI();
-
-const mv = document.getElementById("mv");
-
-mv.addEventListener("load", () => {
-  mv.cameraOrbit = "0deg 65deg 40%";
-  mv.minCameraOrbit = "0deg 65deg 40%";
-  mv.maxCameraOrbit = "0deg 65deg 40%";
-});
 
 </script>
  
