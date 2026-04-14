@@ -30,7 +30,8 @@ model-viewer {
   width: 100%;
   height: 100%;
   background: transparent;
-  filter: saturate(0.85) contrast(0.90);
+  filter: saturate(0.82) contrast(0.85);
+  transition: opacity 0.35s ease;
 }
 
 #startScreen {
@@ -86,7 +87,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 35</div>
+  <div id="prueba" style="color:black;">Prueba 36</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -164,8 +165,13 @@ function next(){
 function enterSceneViewer(){
 
   const mv = document.getElementById("mv");
+
+  // parar y liberar
   mv.pause();
   mv.removeAttribute("src");
+
+  // ocultar completamente (clave para GPU)
+  document.getElementById("mvContainer").style.display = "none";
 
   const modelURL =
     location.origin + location.pathname.replace(/[^/]*$/, '') + models[current].file;
@@ -182,6 +188,25 @@ function enterSceneViewer(){
 }
 
 updateUI();
+
+window.addEventListener("focus", () => {
+  const mv = document.getElementById("mv");
+
+  // volver a mostrar visor
+  document.getElementById("mvContainer").style.display = "block";
+
+  // ocultar mientras carga (evita flash)
+  mv.style.opacity = "0";
+
+  // recargar modelo
+  mv.setAttribute("src", models[current].file);
+
+  // cuando cargue → mostrar + animar
+  mv.addEventListener("load", () => {
+    mv.style.opacity = "1";
+    mv.play();
+  }, { once: true });
+});
 
 </script>
  
