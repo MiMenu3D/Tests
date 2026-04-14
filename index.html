@@ -86,7 +86,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 34</div>
+  <div id="prueba" style="color:black;">Prueba 35</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -162,6 +162,10 @@ function next(){
 }
 
 function enterSceneViewer(){
+
+  const mv = document.getElementById("mv");
+  mv.pause();
+  mv.removeAttribute("src");
 
   const modelURL =
     location.origin + location.pathname.replace(/[^/]*$/, '') + models[current].file;
