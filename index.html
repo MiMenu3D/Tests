@@ -31,6 +31,7 @@ model-viewer {
   height: 100%;
   background: transparent;
   filter: saturate(0.87) contrast(0.88);
+  --model-viewer-pixel-ratio: 0.15;
 }
 
 #startScreen {
@@ -86,7 +87,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 43</div>
+  <div id="prueba" style="color:black;">Prueba 44</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -118,7 +119,6 @@ model-viewer {
   shadow-intensity="0.5"
   exposure="0.80"
   style="background-color:#1f1a17;"
-  render-scale="0.01"
 ></model-viewer>
 </div>
 
@@ -234,7 +234,6 @@ window.addEventListener("focus", () => {
       shadow-intensity="0.5"
       exposure="0.72"
       style="background-color:#1f1a17;"
-      render-scale="0.01"
     ></model-viewer>
   `;
 
