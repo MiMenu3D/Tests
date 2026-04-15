@@ -86,7 +86,7 @@ model-viewer {
 
 <div id="startScreen">
 
-  <div id="prueba" style="color:black;">Prueba 49</div>
+  <div id="prueba" style="color:black;">Prueba 50</div>
 
   <div id="modelTitle">Plato 01</div>
 
@@ -120,14 +120,14 @@ model-viewer {
   style="background-color:#1f1a17;"
   <effect-composer>
   <bloom-effect
-    intensity="0.6"
-    luminance-threshold="0.4"
+    intensity="3.5"
+    luminance-threshold="0.05"
     luminance-smoothing="0.2">
   </bloom-effect>
   <depth-of-field-effect
-    focus-distance="0.5"
+    focus-distance="0.1"
     focal-length="0.02"
-    bokeh-scale="2.0">
+    bokeh-scale="10.0">
   </depth-of-field-effect>
 </effect-composer>
 ></model-viewer>
@@ -247,18 +247,17 @@ window.addEventListener("focus", () => {
       style="background-color:#1f1a17;"
       
       <effect-composer>
-      <bloom-effect
-        intensity="0.5"
-        luminance-threshold="0.45"
-        luminance-smoothing="0.2">
-      </bloom-effect>
-
-      <depth-of-field-effect
-        focus-distance="0.5"
-        focal-length="0.02"
-        bokeh-scale="1.8">
-    </depth-of-field-effect>
-    </effect-composer>
+  <bloom-effect
+    intensity="3.5"
+    luminance-threshold="0.05"
+    luminance-smoothing="0.2">
+  </bloom-effect>
+  <depth-of-field-effect
+    focus-distance="0.1"
+    focal-length="0.02"
+    bokeh-scale="10.0">
+  </depth-of-field-effect>
+</effect-composer>
     ></model-viewer>
   `;
 
