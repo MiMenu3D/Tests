@@ -13,6 +13,7 @@
 
 #prueba {
   font-size: 22px;
+  margin-bottom: 12px;
   color: white;
   text-shadow: 0 0 10px black;
   margin-bottom: 12px;
@@ -112,14 +113,17 @@ model-viewer {
 
 #startScreen {
   position: fixed;
-  inset: 0;
-  z-index: 9999;
+  top: 40%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("Loading screen.png") center/cover no-repeat;
   display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  flex-direction: column;
-  padding-bottom: 150px;
-  background: url("Loading screen.png") center/cover no-repeat;
+  padding-bottom: 20%;
+  z-index: 30;
 }
   
 </style>
@@ -139,7 +143,7 @@ model-viewer {
 
 
   
-  <div id="prueba">Prueba 17</div>
+  <div id="prueba">Prueba 18</div>
 
 
 
