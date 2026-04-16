@@ -143,7 +143,7 @@ model-viewer {
 
 
   
-  <div id="prueba">Prueba 24</div>
+  <div id="prueba">Prueba 25</div>
 
 
 
@@ -267,29 +267,37 @@ function next(){
 /* START */
 document.getElementById("startBtn").onclick = () => {
 
-  // guardar estado antes de entrar en AR
   sessionStorage.setItem("current", current);
-
-  // marcar estado de AR en history
   history.pushState({ mode: "ar" }, "");
 
   const mvContainer = document.getElementById("mvContainer");
   mvContainer.style.display = "none";
   mvContainer.innerHTML = "";
-  
+
   document.getElementById("startScreen").style.display = "none";
 
+  startAR();   // ✔️ SOLO ESTA LLAMADA
+};
+
+function startAR() {
   const scene = document.querySelector("a-scene");
 
-function startAR(){
-  const system = scene.components["mindar-image-system"];
-  if (system) system.start();
-}
+  const waitForMindAR = () => {
+    const system = scene.components?.["mindar-image-system"];
 
-if (scene.hasLoaded) {
-  startAR();
-} else {
-  scene.addEventListener("loaded", startAR, { once: true });
+    if (system && system.el?.sceneEl?.camera) {
+      system.start();
+    } else {
+      requestAnimationFrame(waitForMindAR);
+    }
+  };
+
+  const launch = () => {
+    waitForMindAR();
+  };
+
+  if (scene.hasLoaded) launch();
+  else scene.addEventListener("loaded", launch, { once: true });
 }
 };
   
