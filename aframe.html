@@ -143,7 +143,7 @@ model-viewer {
 
 
   
-  <div id="prueba">Prueba 18</div>
+  <div id="prueba">Prueba 19</div>
 
 
 
@@ -272,6 +272,9 @@ document.getElementById("startBtn").onclick = () => {
 
   // marcar estado de AR en history
   history.pushState({ mode: "ar" }, "");
+
+  const mvContainer = document.getElementById("mvContainer");
+mvContainer.innerHTML = "";
 
   document.getElementById("startScreen").style.display = "none";
 
