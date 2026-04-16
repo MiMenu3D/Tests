@@ -139,7 +139,7 @@ model-viewer {
 
 
   
-  <div id="prueba">Prueba 16</div>
+  <div id="prueba">Prueba 17</div>
 
 
 
@@ -263,6 +263,12 @@ function next(){
 /* START */
 document.getElementById("startBtn").onclick = () => {
 
+  // guardar estado antes de entrar en AR
+  sessionStorage.setItem("current", current);
+
+  // marcar estado de AR en history
+  history.pushState({ mode: "ar" }, "");
+
   document.getElementById("startScreen").style.display = "none";
 
   const scene = document.querySelector("a-scene");
@@ -270,13 +276,29 @@ document.getElementById("startBtn").onclick = () => {
   if (scene && scene.components["mindar-image-system"]) {
     scene.components["mindar-image-system"].start();
   }
-
 };
   
 /* INIT */
+const saved = sessionStorage.getItem("current");
+if (saved !== null) {
+  current = parseInt(saved);
+}
+
 updateAll();
 
+window.addEventListener("popstate", () => {
 
+  document.getElementById("startScreen").style.display = "flex";
+
+  const scene = document.querySelector("a-scene");
+
+  if (scene && scene.components["mindar-image-system"]) {
+    scene.components["mindar-image-system"].stop();
+  }
+
+
+});
+  
 </script>
 
 </body>
