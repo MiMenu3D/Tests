@@ -99,7 +99,7 @@ button {
   left: 0;
   width: 100%;
   height: 40%;
-  background: #1f1a17;
+  background: transparent;
   display: block;
   z-index: 40;
 }
@@ -143,7 +143,7 @@ model-viewer {
 
 
   
-  <div id="prueba">Prueba 21</div>
+  <div id="prueba">Prueba 22</div>
 
 
 
@@ -274,8 +274,9 @@ document.getElementById("startBtn").onclick = () => {
   history.pushState({ mode: "ar" }, "");
 
   const mvContainer = document.getElementById("mvContainer");
-mvContainer.innerHTML = "";
-
+  mvContainer.style.display = "none";
+  mvContainer.innerHTML = "";
+  
   document.getElementById("startScreen").style.display = "none";
 
   const scene = document.querySelector("a-scene");
@@ -294,6 +295,8 @@ if (saved !== null) {
 updateAll();
 
 window.addEventListener("popstate", () => {
+
+  document.getElementById("mvContainer").style.display = "block";
 
   document.getElementById("startScreen").style.display = "flex";
 
