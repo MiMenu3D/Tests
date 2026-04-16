@@ -65,13 +65,55 @@ button {
   border-radius: 10px;
   color: black;
 }
+
+/* ===== MODEL VIEWER ===== */
+
+#mvContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: #1f1a17;
+  display: block;
+  z-index: 40;
+}
+
+model-viewer {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  filter: saturate(0.87) contrast(0.88);
+}
 </style>
 </head>
 
 <body>
+<div id="mvContainer">
+<model-viewer
+  id="mv"
+  src="Plato_01.glb"
+  autoplay
+  auto-rotate
+  auto-rotate-delay="0"
+  rotation-per-second="17deg"
+  camera-orbit="0deg 70deg 45%"
+  min-camera-orbit="0deg 0deg 45%"
+  max-camera-orbit="360deg 90deg 45%"
+  camera-controls="false"
+  touch-action="none"
+  disable-pan
+  disable-zoom
+  interaction-prompt="none"
+  shadow-intensity="0.5"
+  exposure="0.80"
+  style="background-color:#1f1a17;"
+></model-viewer>
+</div>
+
 
 <div style="position:fixed;top:10px;left:10px;color:black;z-index:99999;">
-Prueba 12
+Prueba 14
 </div>
 
 <div id="ui">
@@ -112,6 +154,9 @@ Prueba 12
 
 <script>
 
+let current = 0;
+
+/* MODELS */
 const models = [
   "Plato_01.glb","Plato_02.glb","Plato_03.glb","Plato_04.glb",
   "Plato_05.glb","Plato_06.glb","Plato_07.glb","Plato_08.glb",
@@ -119,28 +164,56 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
-let current = 0;
+/* MODEL-VIEWER */
+function updateMV(){
+  const mv = document.getElementById("mv");
+  if (!mv) return;
 
-function update(){
-  document.getElementById("model").setAttribute("src", models[current]);
-  document.getElementById("label").innerText = "Plato " + (current+1);
+  mv.style.opacity = "0";
+  mv.setAttribute("src", models[current]);
+
+  mv.addEventListener("load", () => {
+    mv.style.transition = "opacity 0.4s ease";
+    mv.style.opacity = "1";
+  }, { once: true });
+
+  document.getElementById("label").innerText =
+    "Plato " + (current + 1);
 }
 
+/* A-FRAME */
+function updateAR(){
+  const arModel = document.getElementById("model");
+  if (!arModel) return;
+
+  arModel.setAttribute("src", models[current]);
+}
+
+/* MASTER */
+function updateAll(){
+  updateMV();
+  updateAR();
+}
+
+/* CONTROLS */
 function prev(){
   current = (current - 1 + models.length) % models.length;
-  update();
+  updateAll();
 }
 
 function next(){
   current = (current + 1) % models.length;
-  update();
+  updateAll();
 }
 
+/* START */
 document.getElementById("startBtn").onclick = () => {
   document.getElementById("ui").style.display = "none";
 };
 
-update();
+/* INIT */
+updateAll();
+
 
 </script>
 
