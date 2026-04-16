@@ -7,8 +7,17 @@
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
+
+#prueba {
+  font-size: 22px;
+  color: white;
+  text-shadow: 0 0 10px black;
+  margin-bottom: 12px;
+}
+  
 html, body {
   margin: 0;
   padding: 0;
@@ -46,6 +55,31 @@ button {
   font-size: 16px;
 }
 
+.arrowContainer {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.arrow {
+  font-size: 28px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.9);
+  color: black;
+  border-radius: 12px;
+  border: none;
+}
+
+.button {
+  background: white;
+  color: black;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 16px;
+  border: none;
+}
+
+  
 #selector {
   position: fixed;
   bottom: 30px;
@@ -89,6 +123,37 @@ model-viewer {
 </head>
 
 <body>
+<div id="startScreen">
+
+  <div id="modelTitle">Plato 01</div>
+
+
+
+
+
+
+
+
+
+  
+  <div id="prueba">Prueba 15</div>
+
+
+
+
+
+
+  <div id="label">Plato 01</div>
+
+  <div class="arrowContainer">
+    <button class="arrow" onclick="prev()">←</button>
+    <button class="arrow" onclick="next()">→</button>
+  </div>
+
+  <button class="button" id="startBtn">Ver en tu mesa</button>
+
+</div>
+
 <div id="mvContainer">
 <model-viewer
   id="mv"
@@ -111,20 +176,6 @@ model-viewer {
 ></model-viewer>
 </div>
 
-
-<div style="position:fixed;top:10px;left:10px;color:black;z-index:99999;">
-Prueba 14
-</div>
-
-<div id="ui">
-  <button id="startBtn">Ver en tu mesa</button>
-</div>
-
-<div id="selector">
-  <button onclick="prev()">←</button>
-  <span id="label">Plato 01</span>
-  <button onclick="next()">→</button>
-</div>
 
 <a-scene
   renderer="alpha:true; antialias:true; colorManagement:true;"
@@ -208,9 +259,17 @@ function next(){
 
 /* START */
 document.getElementById("startBtn").onclick = () => {
-  document.getElementById("ui").style.display = "none";
-};
 
+  document.getElementById("startScreen").style.display = "none";
+
+  const scene = document.querySelector("a-scene");
+
+  if (scene && scene.components["mindar-image-system"]) {
+    scene.components["mindar-image-system"].start();
+  }
+
+};
+  
 /* INIT */
 updateAll();
 
