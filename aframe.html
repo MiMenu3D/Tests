@@ -143,7 +143,7 @@ model-viewer {
 
 
   
-  <div id="prueba">Prueba 23</div>
+  <div id="prueba">Prueba 24</div>
 
 
 
@@ -281,9 +281,16 @@ document.getElementById("startBtn").onclick = () => {
 
   const scene = document.querySelector("a-scene");
 
-  if (scene && scene.components["mindar-image-system"]) {
-    scene.components["mindar-image-system"].start();
-  }
+function startAR(){
+  const system = scene.components["mindar-image-system"];
+  if (system) system.start();
+}
+
+if (scene.hasLoaded) {
+  startAR();
+} else {
+  scene.addEventListener("loaded", startAR, { once: true });
+}
 };
   
 /* INIT */
