@@ -24,7 +24,7 @@ html, body {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
-  background: transparent;
+  background: #1f1a17;
 }
 
 a-scene {
@@ -35,6 +35,7 @@ a-scene {
   z-index: 1;
   pointer-events: none;
   display: none;
+  background: #1f1a17;
 }
 
 button {
@@ -134,7 +135,7 @@ model-viewer {
 
   <div id="modelTitle">Plato 01</div>
 
-  <div id="prueba">Prueba 26</div>
+  <div id="prueba">Prueba 27</div>
 
   <div id="label">Plato 01</div>
 
@@ -172,7 +173,7 @@ model-viewer {
 <a-scene
   id="scene"
   renderer="alpha:true; antialias:true; colorManagement:true;"
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false; filterMinCF:0.0002; filterBeta:0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false;"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
@@ -208,9 +209,10 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
+/* MODEL VIEWER */
 function updateMV(){
   const mv = document.getElementById("mv");
-  if (!mv || arActive) return;
+  if (!mv) return;
 
   mv.style.opacity = "0";
   mv.setAttribute("src", models[current]);
@@ -224,6 +226,7 @@ function updateMV(){
     "Plato " + (current + 1);
 }
 
+/* AR */
 function updateAR(){
   const arModel = document.getElementById("model");
   if (!arModel) return;
@@ -231,29 +234,29 @@ function updateAR(){
   arModel.setAttribute("src", models[current]);
 }
 
+/* MASTER */
 function updateAll(){
   updateMV();
   updateAR();
 }
 
+/* CONTROLS */
 function prev(){
   current = (current - 1 + models.length) % models.length;
-  sessionStorage.setItem("current", current);
   updateAll();
 }
 
 function next(){
   current = (current + 1) % models.length;
-  sessionStorage.setItem("current", current);
   updateAll();
 }
 
+/* START AR */
 function startAR(){
 
   arActive = true;
 
-  sessionStorage.setItem("current", current);
-  history.pushState({ mode: "ar" }, "");
+  history.pushState({ mode: "ar", current }, "");
 
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("mvContainer").style.display = "none";
@@ -263,14 +266,26 @@ function startAR(){
   scene.style.pointerEvents = "auto";
 
   const system = scene.components["mindar-image-system"];
-  if (system) system.start();
+
+  const startWhenReady = () => {
+    if (scene.components["mindar-image-system"]) {
+      scene.components["mindar-image-system"].start();
+      updateAR();
+    } else {
+      requestAnimationFrame(startWhenReady);
+    }
+  };
+
+  startWhenReady();
 }
 
+/* STOP AR */
 function stopAR(){
 
   arActive = false;
 
   const scene = document.getElementById("scene");
+
   const system = scene.components["mindar-image-system"];
   if (system) system.stop();
 
@@ -283,15 +298,19 @@ function stopAR(){
   updateMV();
 }
 
+/* BUTTON */
 document.getElementById("startBtn").onclick = startAR;
 
-const saved = sessionStorage.getItem("current");
-if (saved !== null) current = parseInt(saved);
-
+/* INIT (SIEMPRE Plato 01) */
+current = 0;
 updateAll();
 
-window.addEventListener("popstate", () => {
+/* BACK BUTTON */
+window.addEventListener("popstate", (e) => {
   if (arActive) {
+    if (e.state && typeof e.state.current === "number") {
+      current = e.state.current;
+    }
     stopAR();
   }
 });
