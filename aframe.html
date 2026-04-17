@@ -109,7 +109,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 31</div>
+  <div id="prueba">Prueba 32</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -201,20 +201,20 @@ function createAR(){
   const container = document.getElementById("arContainer");
 
   container.innerHTML = `
-  <a-scene
-    id="scene"
-    embedded
-    renderer="alpha:true; antialias:true; colorManagement:true;"
-    mindar-image="
-      imageTargetSrc: margot_targets.mind;
-      autoStart:true;
-      filterMinCF:0.0002;
-      filterBeta:0.004;
-      uiScanning:true;
-    "
-    vr-mode-ui="enabled:false"
-    device-orientation-permission-ui="enabled:false"
-  >
+    <a-scene
+      mindar-image="imageTargetSrc: margot_targets.mind; 
+      autoStart: true; 
+      filterMinCF: 0.0002; 
+      filterBeta: 0.004;"
+      renderer="alpha: true; 
+      physicallyCorrectLights: true; 
+      colorManagement: true; 
+      exposure: 3.5; 
+      toneMapping: ACESFilmicToneMapping;"
+      color-space="sRGB"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
 
     <a-assets>
       <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
