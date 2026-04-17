@@ -108,7 +108,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="label">Plato 01</div>
+  <div id="label">Prueba 32</div>
 
   <div class="arrowContainer">
     <button class="arrow" onclick="prev()">←</button>
@@ -118,12 +118,11 @@ a-scene {
   <button class="button" onclick="startAR()">Ver en tu mesa</button>
 </div>
 
-<!-- 🔥 A-FRAME FIJO (IMPORTANTE) -->
 <a-scene
   id="scene"
   mindar-image="
     imageTargetSrc: margot_targets.mind;
-    autoStart:false;
+    autoStart:true;
     filterMinCF:0.0002;
     filterBeta:0.004;
   "
@@ -138,14 +137,12 @@ a-scene {
   device-orientation-permission-ui="enabled:false"
 >
 
-<!-- HDR ORIGINAL RESTAURADO -->
 <a-assets>
   <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
 </a-assets>
 
 <a-entity environment-map="src:#hdrEnv; intensity:4.5"></a-entity>
 
-<!-- LUCES RESTAURADAS (IMPORTANTE) -->
 <a-light type="ambient" intensity="1.5"></a-light>
 <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
 
@@ -174,12 +171,9 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
-/* =========================
-   MODEL VIEWER (CORRECTO)
-========================= */
+/* ===== MODEL VIEWER ===== */
 
 function createMV(){
-
   const container = document.getElementById("mvContainer");
 
   container.innerHTML = `
@@ -230,9 +224,7 @@ function destroyMV(){
   mv = null;
 }
 
-/* =========================
-   AR CONTROL (CORRECTO)
-========================= */
+/* ===== AR START (FIX REAL) ===== */
 
 function startAR(){
 
@@ -248,17 +240,26 @@ function startAR(){
   const model = document.getElementById("arModel");
   model.setAttribute("src", models[current]);
 
-  const system = scene.components["mindar-image-system"];
-
-  if (system) {
-    system.start();
+  // 🔥 FIX IMPORTANTE: esperar a que A-Frame esté listo del todo
+  if (scene.hasLoaded) {
+    const system = scene.systems["mindar-image-system"];
+    if (system) system.start();
+  } else {
+    scene.addEventListener("loaded", () => {
+      setTimeout(() => {
+        const system = scene.systems["mindar-image-system"];
+        if (system) system.start();
+      }, 250);
+    });
   }
 }
+
+/* ===== AR STOP ===== */
 
 function stopAR(){
 
   const scene = document.getElementById("scene");
-  const system = scene.components["mindar-image-system"];
+  const system = scene.systems["mindar-image-system"];
 
   if (system) system.stop();
 
@@ -269,9 +270,7 @@ function stopAR(){
   createMV();
 }
 
-/* =========================
-   CONTROLES
-========================= */
+/* ===== CONTROLES ===== */
 
 function prev(){
   current = (current - 1 + models.length) % models.length;
@@ -285,15 +284,17 @@ function next(){
 
 function updateLabel(){
   document.getElementById("label").innerText =
-    "Plato " + (current + 1);
+    "Prueba 32";
 }
 
 /* BACK */
+
 window.addEventListener("popstate", () => {
   stopAR();
 });
 
 /* INIT */
+
 createMV();
 
 </script>
