@@ -109,7 +109,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 30</div>
+  <div id="prueba">Prueba 31</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -165,7 +165,7 @@ function createMV(){
 
   mv = document.getElementById("mv");
 
-  /* ✅ FIX: fade inicial */
+  /* Fade inicial */
   mv.addEventListener("load", () => {
     mv.style.opacity = "1";
   }, { once: true });
@@ -174,7 +174,7 @@ function createMV(){
     "Plato " + (current + 1);
 }
 
-/* FADE ENTRE MODELOS */
+/* Fade entre modelos */
 function updateMV(){
   if (!mv) return;
 
@@ -205,7 +205,13 @@ function createAR(){
     id="scene"
     embedded
     renderer="alpha:true; antialias:true; colorManagement:true;"
-    mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true;"
+    mindar-image="
+      imageTargetSrc: margot_targets.mind;
+      autoStart:true;
+      filterMinCF:0.0002;
+      filterBeta:0.004;
+      uiScanning:true;
+    "
     vr-mode-ui="enabled:false"
     device-orientation-permission-ui="enabled:false"
   >
