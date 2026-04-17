@@ -13,7 +13,6 @@
 
 #prueba {
   font-size: 22px;
-  margin-bottom: 12px;
   color: white;
   text-shadow: 0 0 10px black;
   margin-bottom: 12px;
@@ -35,6 +34,7 @@ a-scene {
   height: 100%;
   z-index: 1;
   pointer-events: none;
+  display: none;
 }
 
 button {
@@ -70,7 +70,6 @@ button {
   border: none;
 }
 
-  
 #selector {
   position: fixed;
   bottom: 30px;
@@ -130,25 +129,12 @@ model-viewer {
 </head>
 
 <body>
+
 <div id="startScreen">
 
   <div id="modelTitle">Plato 01</div>
 
-
-
-
-
-
-
-
-
-  
-  <div id="prueba">Prueba 19</div>
-
-
-
-
-
+  <div id="prueba">Prueba 26</div>
 
   <div id="label">Plato 01</div>
 
@@ -183,10 +169,10 @@ model-viewer {
 ></model-viewer>
 </div>
 
-
 <a-scene
+  id="scene"
   renderer="alpha:true; antialias:true; colorManagement:true;"
-  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true; filterMinCF:0.0002; filterBeta:0.004;"
+  mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false; filterMinCF:0.0002; filterBeta:0.004;"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
@@ -213,8 +199,8 @@ model-viewer {
 <script>
 
 let current = 0;
+let arActive = false;
 
-/* MODELS */
 const models = [
   "Plato_01.glb","Plato_02.glb","Plato_03.glb","Plato_04.glb",
   "Plato_05.glb","Plato_06.glb","Plato_07.glb","Plato_08.glb",
@@ -222,10 +208,9 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
-/* MODEL-VIEWER */
 function updateMV(){
   const mv = document.getElementById("mv");
-  if (!mv) return;
+  if (!mv || arActive) return;
 
   mv.style.opacity = "0";
   mv.setAttribute("src", models[current]);
@@ -239,7 +224,6 @@ function updateMV(){
     "Plato " + (current + 1);
 }
 
-/* A-FRAME */
 function updateAR(){
   const arModel = document.getElementById("model");
   if (!arModel) return;
@@ -247,65 +231,71 @@ function updateAR(){
   arModel.setAttribute("src", models[current]);
 }
 
-/* MASTER */
 function updateAll(){
   updateMV();
   updateAR();
 }
 
-/* CONTROLS */
 function prev(){
   current = (current - 1 + models.length) % models.length;
+  sessionStorage.setItem("current", current);
   updateAll();
 }
 
 function next(){
   current = (current + 1) % models.length;
+  sessionStorage.setItem("current", current);
   updateAll();
 }
 
-/* START */
-document.getElementById("startBtn").onclick = () => {
+function startAR(){
 
-  // guardar estado antes de entrar en AR
+  arActive = true;
+
   sessionStorage.setItem("current", current);
-
-  // marcar estado de AR en history
   history.pushState({ mode: "ar" }, "");
 
-  const mvContainer = document.getElementById("mvContainer");
-mvContainer.innerHTML = "";
-
   document.getElementById("startScreen").style.display = "none";
+  document.getElementById("mvContainer").style.display = "none";
 
-  const scene = document.querySelector("a-scene");
+  const scene = document.getElementById("scene");
+  scene.style.display = "block";
+  scene.style.pointerEvents = "auto";
 
-  if (scene && scene.components["mindar-image-system"]) {
-    scene.components["mindar-image-system"].start();
-  }
-};
-  
-/* INIT */
-const saved = sessionStorage.getItem("current");
-if (saved !== null) {
-  current = parseInt(saved);
+  const system = scene.components["mindar-image-system"];
+  if (system) system.start();
 }
+
+function stopAR(){
+
+  arActive = false;
+
+  const scene = document.getElementById("scene");
+  const system = scene.components["mindar-image-system"];
+  if (system) system.stop();
+
+  scene.style.display = "none";
+  scene.style.pointerEvents = "none";
+
+  document.getElementById("mvContainer").style.display = "block";
+  document.getElementById("startScreen").style.display = "flex";
+
+  updateMV();
+}
+
+document.getElementById("startBtn").onclick = startAR;
+
+const saved = sessionStorage.getItem("current");
+if (saved !== null) current = parseInt(saved);
 
 updateAll();
 
 window.addEventListener("popstate", () => {
-
-  document.getElementById("startScreen").style.display = "flex";
-
-  const scene = document.querySelector("a-scene");
-
-  if (scene && scene.components["mindar-image-system"]) {
-    scene.components["mindar-image-system"].stop();
+  if (arActive) {
+    stopAR();
   }
-
-
 });
-  
+
 </script>
 
 </body>
