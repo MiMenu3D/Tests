@@ -20,9 +20,7 @@ html, body {
   background: #1f1a17;
 }
 
-/* =======================
-   MODEL VIEWER (MENÚ)
-======================= */
+/* MODEL VIEWER */
 
 #mvContainer {
   position: fixed;
@@ -43,9 +41,7 @@ model-viewer {
   transition: opacity 0.5s ease;
 }
 
-/* =======================
-   MENÚ
-======================= */
+/* MENU */
 
 #startScreen {
   position: fixed;
@@ -67,6 +63,13 @@ model-viewer {
   font-size: 20px;
   text-shadow: 0 0 10px black;
   margin-bottom: 10px;
+}
+
+#prueba {
+  color: white;
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px black;
 }
 
 .arrowContainer {
@@ -92,9 +95,7 @@ model-viewer {
   border: none;
 }
 
-/* =======================
-   AR (CRÍTICO: CAPA CORRECTA)
-======================= */
+/* AR */
 
 a-scene {
   position: fixed;
@@ -114,6 +115,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
+  <div id="prueba">Prueba 35</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -147,10 +149,8 @@ a-scene {
   <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
 </a-assets>
 
-<!-- 🔥 RESTAURADO EXACTO (NO ALTERADO) -->
 <a-entity environment-map="src:#hdrEnv; intensity:4.5"></a-entity>
 
-<!-- 🔥 LUCES RESTAURADAS (CRÍTICO PARA TU CASO) -->
 <a-light type="ambient" intensity="1.5"></a-light>
 <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
 
@@ -179,12 +179,9 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
-/* =======================
-   MODEL VIEWER
-======================= */
+/* MODEL VIEWER */
 
 function createMV(){
-
   const container = document.getElementById("mvContainer");
 
   container.innerHTML = `
@@ -235,9 +232,7 @@ function destroyMV(){
   mv = null;
 }
 
-/* =======================
-   AR CONTROL (CORREGIDO)
-======================= */
+/* AR FIX REAL (NO REARQUITECTURA) */
 
 function startAR(){
 
@@ -250,25 +245,17 @@ function startAR(){
   const scene = document.getElementById("scene");
   scene.style.display = "block";
 
-  const model = document.getElementById("arModel");
-  model.setAttribute("src", models[current]);
+  // 🔥 FIX 1: asegurar render activo
+  scene.canvas?.style && (scene.canvas.style.display = "block");
 
-  // 🔥 FIX CLAVE: NO double start, solo cuando sistema existe
-  const tryStart = () => {
+  // 🔥 FIX 2: start seguro
+  setTimeout(() => {
     const system = scene.systems["mindar-image-system"];
     if (system) system.start();
-  };
-
-  if (scene.hasLoaded) {
-    tryStart();
-  } else {
-    scene.addEventListener("loaded", tryStart, { once:true });
-  }
+  }, 300);
 }
 
-/* =======================
-   STOP AR
-======================= */
+/* STOP AR CORRECTO */
 
 function stopAR(){
 
@@ -277,6 +264,9 @@ function stopAR(){
 
   if (system) system.stop();
 
+  // 🔥 FIX: pausa render real
+  scene.pause();
+
   scene.style.display = "none";
 
   document.getElementById("startScreen").style.display = "flex";
@@ -284,9 +274,7 @@ function stopAR(){
   createMV();
 }
 
-/* =======================
-   UI
-======================= */
+/* UI */
 
 function prev(){
   current = (current - 1 + models.length) % models.length;
@@ -299,8 +287,7 @@ function next(){
 }
 
 function updateLabel(){
-  document.getElementById("label").innerText =
-    "Plato " + (current + 1);
+  document.getElementById("label").innerText = "Plato " + (current + 1);
 }
 
 /* BACK */
