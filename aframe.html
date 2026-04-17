@@ -11,6 +11,13 @@
 
 <style>
 
+#prueba {
+  font-size: 22px;
+  color: white;
+  text-shadow: 0 0 10px black;
+  margin-bottom: 12px;
+}
+  
 html, body {
   margin: 0;
   padding: 0;
@@ -20,12 +27,7 @@ html, body {
   background: #1f1a17;
 }
 
-#prueba {
-  font-size: 22px;
-  color: white;
-  text-shadow: 0 0 10px black;
-  margin-bottom: 12px;
-}
+/* ===== MODEL VIEWER ===== */
 
 #mvContainer {
   position: fixed;
@@ -41,6 +43,7 @@ model-viewer {
   width: 100%;
   height: 100%;
   background: transparent;
+  filter: saturate(0.87) contrast(0.88);
 }
 
 #startScreen {
@@ -81,11 +84,19 @@ model-viewer {
   border: none;
 }
 
+/* ===== AR ===== */
+
 #arContainer {
   position: fixed;
   inset: 0;
   background: #1f1a17;
   z-index: 50;
+  display: none;
+}
+
+a-scene {
+  width: 100%;
+  height: 100%;
 }
 
 </style>
@@ -96,7 +107,7 @@ model-viewer {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 28</div>
+  <div id="prueba">Prueba 29</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -107,7 +118,7 @@ model-viewer {
   <button class="button" onclick="startAR()">Ver en tu mesa</button>
 </div>
 
-<div id="arContainer" style="display:none;"></div>
+<div id="arContainer"></div>
 
 <script>
 
@@ -137,7 +148,10 @@ function createMV(){
       auto-rotate-delay="0"
       rotation-per-second="17deg"
       camera-orbit="0deg 70deg 45%"
+      min-camera-orbit="0deg 0deg 45%"
+      max-camera-orbit="360deg 90deg 45%"
       camera-controls="false"
+      touch-action="none"
       disable-pan
       disable-zoom
       interaction-prompt="none"
@@ -153,9 +167,18 @@ function createMV(){
     "Plato " + (current + 1);
 }
 
+/* RECUPERADO: FADE */
 function updateMV(){
   if (!mv) return;
+
+  mv.style.opacity = "0";
   mv.setAttribute("src", models[current]);
+
+  mv.addEventListener("load", () => {
+    mv.style.transition = "opacity 0.4s ease";
+    mv.style.opacity = "1";
+  }, { once: true });
+
   document.getElementById("label").innerText =
     "Plato " + (current + 1);
 }
@@ -175,10 +198,11 @@ function createAR(){
   <a-scene
     embedded
     renderer="alpha:true; antialias:true; colorManagement:true;"
-    mindar-image="imageTargetSrc: margot_targets.mind;"
+    mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false;"
     vr-mode-ui="enabled:false"
     device-orientation-permission-ui="enabled:false"
   >
+
     <a-assets>
       <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
     </a-assets>
@@ -195,14 +219,25 @@ function createAR(){
         scale="8 8 8">
       </a-gltf-model>
     </a-entity>
+
   </a-scene>
   `;
 
   const scene = container.querySelector("a-scene");
 
   scene.addEventListener("loaded", () => {
-    const system = scene.components["mindar-image-system"];
-    if (system) system.start();
+
+    const start = () => {
+      const system = scene.components["mindar-image-system"];
+
+      if (system) {
+        system.start();   // 🔥 fuerza escáner + cámara + tracking
+      } else {
+        requestAnimationFrame(start);
+      }
+    };
+
+    start();
   });
 }
 
@@ -250,7 +285,7 @@ function stopAR(){
 }
 
 /* BACK */
-window.addEventListener("popstate", (e) => {
+window.addEventListener("popstate", () => {
   stopAR();
 });
 
