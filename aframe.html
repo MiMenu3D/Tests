@@ -20,7 +20,9 @@ html, body {
   background: #1f1a17;
 }
 
-/* ===== MODEL VIEWER ===== */
+/* =======================
+   MODEL VIEWER (MENÚ)
+======================= */
 
 #mvContainer {
   position: fixed;
@@ -41,7 +43,9 @@ model-viewer {
   transition: opacity 0.5s ease;
 }
 
-/* ===== MENU ===== */
+/* =======================
+   MENÚ
+======================= */
 
 #startScreen {
   position: fixed;
@@ -88,7 +92,9 @@ model-viewer {
   border: none;
 }
 
-/* ===== AR ===== */
+/* =======================
+   AR (CRÍTICO: CAPA CORRECTA)
+======================= */
 
 a-scene {
   position: fixed;
@@ -108,7 +114,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="label">Prueba 32</div>
+  <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
     <button class="arrow" onclick="prev()">←</button>
@@ -141,8 +147,10 @@ a-scene {
   <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
 </a-assets>
 
+<!-- 🔥 RESTAURADO EXACTO (NO ALTERADO) -->
 <a-entity environment-map="src:#hdrEnv; intensity:4.5"></a-entity>
 
+<!-- 🔥 LUCES RESTAURADAS (CRÍTICO PARA TU CASO) -->
 <a-light type="ambient" intensity="1.5"></a-light>
 <a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
 
@@ -171,9 +179,12 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
-/* ===== MODEL VIEWER ===== */
+/* =======================
+   MODEL VIEWER
+======================= */
 
 function createMV(){
+
   const container = document.getElementById("mvContainer");
 
   container.innerHTML = `
@@ -224,7 +235,9 @@ function destroyMV(){
   mv = null;
 }
 
-/* ===== AR START (FIX REAL) ===== */
+/* =======================
+   AR CONTROL (CORREGIDO)
+======================= */
 
 function startAR(){
 
@@ -240,21 +253,22 @@ function startAR(){
   const model = document.getElementById("arModel");
   model.setAttribute("src", models[current]);
 
-  // 🔥 FIX IMPORTANTE: esperar a que A-Frame esté listo del todo
-  if (scene.hasLoaded) {
+  // 🔥 FIX CLAVE: NO double start, solo cuando sistema existe
+  const tryStart = () => {
     const system = scene.systems["mindar-image-system"];
     if (system) system.start();
+  };
+
+  if (scene.hasLoaded) {
+    tryStart();
   } else {
-    scene.addEventListener("loaded", () => {
-      setTimeout(() => {
-        const system = scene.systems["mindar-image-system"];
-        if (system) system.start();
-      }, 250);
-    });
+    scene.addEventListener("loaded", tryStart, { once:true });
   }
 }
 
-/* ===== AR STOP ===== */
+/* =======================
+   STOP AR
+======================= */
 
 function stopAR(){
 
@@ -270,7 +284,9 @@ function stopAR(){
   createMV();
 }
 
-/* ===== CONTROLES ===== */
+/* =======================
+   UI
+======================= */
 
 function prev(){
   current = (current - 1 + models.length) % models.length;
@@ -284,7 +300,7 @@ function next(){
 
 function updateLabel(){
   document.getElementById("label").innerText =
-    "Prueba 32";
+    "Plato " + (current + 1);
 }
 
 /* BACK */
