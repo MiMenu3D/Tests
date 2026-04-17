@@ -44,6 +44,8 @@ model-viewer {
   height: 100%;
   background: transparent;
   filter: saturate(0.87) contrast(0.88);
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
 #startScreen {
@@ -107,7 +109,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 29</div>
+  <div id="prueba">Prueba 30</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -163,11 +165,16 @@ function createMV(){
 
   mv = document.getElementById("mv");
 
+  /* ✅ FIX: fade inicial */
+  mv.addEventListener("load", () => {
+    mv.style.opacity = "1";
+  }, { once: true });
+
   document.getElementById("label").innerText =
     "Plato " + (current + 1);
 }
 
-/* RECUPERADO: FADE */
+/* FADE ENTRE MODELOS */
 function updateMV(){
   if (!mv) return;
 
@@ -175,7 +182,6 @@ function updateMV(){
   mv.setAttribute("src", models[current]);
 
   mv.addEventListener("load", () => {
-    mv.style.transition = "opacity 0.4s ease";
     mv.style.opacity = "1";
   }, { once: true });
 
@@ -196,9 +202,10 @@ function createAR(){
 
   container.innerHTML = `
   <a-scene
+    id="scene"
     embedded
     renderer="alpha:true; antialias:true; colorManagement:true;"
-    mindar-image="imageTargetSrc: margot_targets.mind; autoStart:false;"
+    mindar-image="imageTargetSrc: margot_targets.mind; autoStart:true;"
     vr-mode-ui="enabled:false"
     device-orientation-permission-ui="enabled:false"
   >
@@ -222,23 +229,6 @@ function createAR(){
 
   </a-scene>
   `;
-
-  const scene = container.querySelector("a-scene");
-
-  scene.addEventListener("loaded", () => {
-
-    const start = () => {
-      const system = scene.components["mindar-image-system"];
-
-      if (system) {
-        system.start();   // 🔥 fuerza escáner + cámara + tracking
-      } else {
-        requestAnimationFrame(start);
-      }
-    };
-
-    start();
-  });
 }
 
 function destroyAR(){
