@@ -11,13 +11,6 @@
 
 <style>
 
-#prueba {
-  font-size: 22px;
-  color: white;
-  text-shadow: 0 0 10px black;
-  margin-bottom: 12px;
-}
-  
 html, body {
   margin: 0;
   padding: 0;
@@ -48,6 +41,8 @@ model-viewer {
   transition: opacity 0.5s ease;
 }
 
+/* ===== MENU ===== */
+
 #startScreen {
   position: fixed;
   top: 40%;
@@ -61,6 +56,13 @@ model-viewer {
   align-items: center;
   padding-bottom: 20%;
   z-index: 30;
+}
+
+#label {
+  color: white;
+  font-size: 20px;
+  text-shadow: 0 0 10px black;
+  margin-bottom: 10px;
 }
 
 .arrowContainer {
@@ -95,6 +97,7 @@ a-scene {
   height: 100%;
   display: none;
   z-index: 50;
+  background: transparent;
 }
 
 </style>
@@ -105,7 +108,6 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 32</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -116,7 +118,7 @@ a-scene {
   <button class="button" onclick="startAR()">Ver en tu mesa</button>
 </div>
 
-<!-- 🔥 A-FRAME SIEMPRE EN DOM (clave para el escáner) -->
+<!-- 🔥 A-FRAME FIJO (IMPORTANTE) -->
 <a-scene
   id="scene"
   mindar-image="
@@ -125,23 +127,33 @@ a-scene {
     filterMinCF:0.0002;
     filterBeta:0.004;
   "
-  renderer="alpha:true; antialias:true; colorManagement:true; physicallyCorrectLights:true; exposure:3.5; toneMapping:ACESFilmicToneMapping;"
-  color-space="sRGB"
+  renderer="
+    alpha:true;
+    physicallyCorrectLights:true;
+    colorManagement:true;
+    exposure:3.5;
+    toneMapping:ACESFilmicToneMapping;
+  "
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
 >
 
+<!-- HDR ORIGINAL RESTAURADO -->
 <a-assets>
   <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
 </a-assets>
 
 <a-entity environment-map="src:#hdrEnv; intensity:4.5"></a-entity>
 
+<!-- LUCES RESTAURADAS (IMPORTANTE) -->
+<a-light type="ambient" intensity="1.5"></a-light>
+<a-light type="directional" position="2 4 3" intensity="2.2"></a-light>
+
 <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
 <a-entity mindar-image-target="targetIndex:0">
   <a-gltf-model
-    id="model"
+    id="arModel"
     src="Plato_01.glb"
     rotation="90 0 0"
     scale="8 8 8">
@@ -162,9 +174,12 @@ const models = [
   "Plato_13.glb","Plato_14.glb","Plato_15.glb"
 ];
 
-/* ===== MODEL VIEWER ===== */
+/* =========================
+   MODEL VIEWER (CORRECTO)
+========================= */
 
 function createMV(){
+
   const container = document.getElementById("mvContainer");
 
   container.innerHTML = `
@@ -179,7 +194,6 @@ function createMV(){
       min-camera-orbit="0deg 0deg 45%"
       max-camera-orbit="360deg 90deg 45%"
       camera-controls="false"
-      touch-action="none"
       disable-pan
       disable-zoom
       interaction-prompt="none"
@@ -216,11 +230,13 @@ function destroyMV(){
   mv = null;
 }
 
-/* ===== AR ===== */
+/* =========================
+   AR CONTROL (CORRECTO)
+========================= */
 
 function startAR(){
 
-  history.pushState({ mode: "ar", current }, "");
+  history.pushState({ mode:"ar", current }, "");
 
   destroyMV();
 
@@ -229,11 +245,14 @@ function startAR(){
   const scene = document.getElementById("scene");
   scene.style.display = "block";
 
-  document.getElementById("model").setAttribute("src", models[current]);
+  const model = document.getElementById("arModel");
+  model.setAttribute("src", models[current]);
 
   const system = scene.components["mindar-image-system"];
 
-  if (system) system.start();
+  if (system) {
+    system.start();
+  }
 }
 
 function stopAR(){
@@ -250,7 +269,9 @@ function stopAR(){
   createMV();
 }
 
-/* ===== CONTROLES ===== */
+/* =========================
+   CONTROLES
+========================= */
 
 function prev(){
   current = (current - 1 + models.length) % models.length;
