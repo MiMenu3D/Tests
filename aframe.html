@@ -102,6 +102,7 @@ a-scene {
 }
 
 .mindar-ui-scanning { z-index: 51 !important; }
+.arrowContainer { position: relative; z-index: 52; }
   
 </style>
 </head>
@@ -111,7 +112,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 39</div>
+  <div id="prueba">Prueba 41</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -248,11 +249,15 @@ function destroyAR(){
 function prev(){
   current = (current - 1 + models.length) % models.length;
   updateMV();
+  if(mv === null) createAR();
+
 }
 
 function next(){
   current = (current + 1) % models.length;
   updateMV();
+  if(mv === null) createAR();
+
 }
 
 /* ===== TRANSICIONES ===== */
@@ -263,7 +268,12 @@ function startAR(){
 
   destroyMV();
 
-  document.getElementById("startScreen").style.display = "none";
+   // En lugar de display:none, usamos esto:
+  document.getElementById("startScreen").style.opacity = "0"; 
+  document.getElementById("startScreen").style.pointerEvents = "none";
+  // Y rescatamos solo las flechas:
+  document.querySelector(".arrowContainer").style.opacity = "1";
+  document.querySelector(".arrowContainer").style.pointerEvents = "auto";
 
   const arContainer = document.getElementById("arContainer");
   arContainer.style.display = "block";
@@ -277,7 +287,9 @@ function stopAR(){
 
   document.getElementById("arContainer").style.display = "none";
 
-  document.getElementById("startScreen").style.display = "flex";
+   // Restauramos la visibilidad del menú
+  document.getElementById("startScreen").style.opacity = "1";
+  document.getElementById("startScreen").style.pointerEvents = "auto";
 
   createMV();
 }
