@@ -102,6 +102,7 @@ a-scene {
 }
 
 .mindar-ui-scanning { z-index: 51 !important; }
+.arrowContainer { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 51; display: flex !important; }
   
 </style>
 </head>
@@ -111,7 +112,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 39</div>
+  <div id="prueba">Prueba 40</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -248,11 +249,13 @@ function destroyAR(){
 function prev(){
   current = (current - 1 + models.length) % models.length;
   updateMV();
+  if(document.getElementById("arContainer").style.display === "block") createAR();
 }
 
 function next(){
   current = (current + 1) % models.length;
   updateMV();
+  if(document.getElementById("arContainer").style.display === "block") createAR();
 }
 
 /* ===== TRANSICIONES ===== */
