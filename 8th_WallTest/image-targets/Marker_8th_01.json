@@ -1,0 +1,23 @@
+{
+  "type": "PLANAR",
+  "properties": {
+    "top": 0,
+    "left": 312,
+    "width": 1875,
+    "height": 2500,
+    "isRotated": false,
+    "originalWidth": 2500,
+    "originalHeight": 2500
+  },
+  "imagePath": "image-targets/Marker_8th_01_luminance.jpg",
+  "metadata": null,
+  "name": "Marker_8th_01",
+  "resources": {
+    "originalImage": "Marker_8th_01_original.jpg",
+    "croppedImage": "Marker_8th_01_cropped.jpg",
+    "thumbnailImage": "Marker_8th_01_thumbnail.jpg",
+    "luminanceImage": "Marker_8th_01_luminance.jpg"
+  },
+  "created": 1780338136749,
+  "updated": 1780338136749
+}
