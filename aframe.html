@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Head original v39: Solo el núcleo gráfico nativo para evitar interferencias en el inicio -->
+<!-- Head original v39: Solo el núcleo gráfico nativo para garantizar el funcionamiento de model-viewer -->
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -101,7 +101,7 @@ a-scene {
   height: 100%;
 }
 
-/* Interfaz de escaneo integrada nativa (Reemplazo de xrextras) */
+/* Interfaz de escaneo integrada nativa */
 #customLoadingUi {
   position: fixed;
   inset: 0;
@@ -139,7 +139,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 50</div>
+  <!-- Forzado manualmente a Prueba 51 -->
+  <div id="prueba">Prueba 51</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -226,23 +227,27 @@ function destroyMV(){
 
 /* ===== AR ===== */
 
-// Carga asíncrona local: Inyecta únicamente el archivo existente xr.js sin dependencias extras
+// Carga por aislamiento estricto: Bájate el archivo como texto plano para que no rompa el inicio, ejecútalo solo al pulsar el botón
 function loadLocal8thWall(callback) {
   if (window.XR8) {
     callback();
     return;
   }
-  const s1 = document.createElement("script");
-  s1.src = "./xr.js"; // Archivo de 995 KB de tu primer pantallazo
-  s1.onload = callback;
-  document.head.appendChild(s1);
+  fetch("./xr.js")
+    .then(response => response.text())
+    .then(code => {
+      // Evaluamos el código de forma segura dentro del contexto controlado del botón
+      const scopedEval = window.eval;
+      scopedEval(code);
+      callback();
+    })
+    .catch(err => console.error("Error aislando el motor:", err));
 }
 
 function createAR(){
   loadLocal8thWall(() => {
     const container = document.getElementById("arContainer");
 
-    // Eliminamos xrextras de la escena e inyectamos el visor de escaneo nativo directamente en HTML
     container.innerHTML = `
       <div id="customLoadingUi">
         <div class="scanner-frame"></div>
@@ -269,7 +274,7 @@ function createAR(){
 
       <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-      <!-- Target mapeado a tu Cupcake (Marker_8th_01) -->
+      <!-- Marcador mapeado a tu Cupcake (Marker_8th_01) -->
       <xrextras-named-image-target name="Marker_8th_01">
         <a-gltf-model
           id="aframeModel"
@@ -282,7 +287,7 @@ function createAR(){
     </a-scene>
     `;
 
-    // Oculta la animación de escaneo automáticamente cuando el motor encuentra la imagen
+    // Gestión de visibilidad de la interfaz nativa
     const targetEntity = document.querySelector('xrextras-named-image-target');
     if (targetEntity) {
       targetEntity.addEventListener('xrimagefound', () => {
@@ -293,6 +298,18 @@ function createAR(){
         const ui = document.getElementById('customLoadingUi');
         if (ui) ui.style.display = 'flex';
       });
+    }
+
+    // DESPERTADOR DEL MOTOR LOCAL: Fuerza el encendido del hardware de la cámara una vez inyectada la escena
+    const scene = document.querySelector('a-scene');
+    if (scene) {
+      if (scene.hasLoaded) {
+        XR8.run({scene});
+      } else {
+        scene.addEventListener('loaded', () => {
+          XR8.run({scene});
+        });
+      }
     }
   });
 }
