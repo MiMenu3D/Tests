@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Mantenemos exactamente tus scripts de la v39 (Quitamos MindAR, pero NO ponemos 8th Wall aquí) -->
+<!-- Cargamos limpiamente las librerías en el head. Con autoStart:false ya no interfieren con model-viewer -->
+<script src="https://8thwall.com"></script>
+<script src="https://8thwall.com"></script>
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -109,8 +111,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <!-- Cambiado a versión 43 -->
-  <div id="prueba">Prueba 44</div>
+  <!-- Forzado manualmente a Prueba 44 -->
+  <div id="prueba">Prueba 45</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -139,7 +141,9 @@ const models = [
 /* ===== MODEL VIEWER ===== */
 
 function createMV(){
+
   const container = document.getElementById("mvContainer");
+
   container.innerHTML = `
     <model-viewer
       id="mv"
@@ -164,21 +168,28 @@ function createMV(){
 
   mv = document.getElementById("mv");
 
+  /* Fade inicial */
   mv.addEventListener("load", () => {
     mv.style.opacity = "1";
   }, { once: true });
 
-  document.getElementById("label").innerText = "Plato " + (current + 1);
+  document.getElementById("label").innerText =
+    "Plato " + (current + 1);
 }
 
+/* Fade entre modelos */
 function updateMV(){
   if (!mv) return;
+
   mv.style.opacity = "0";
   mv.setAttribute("src", models[current]);
+
   mv.addEventListener("load", () => {
     mv.style.opacity = "1";
   }, { once: true });
-  document.getElementById("label").innerText = "Plato " + (current + 1);
+
+  document.getElementById("label").innerText =
+    "Plato " + (current + 1);
 }
 
 function destroyMV(){
@@ -188,67 +199,61 @@ function destroyMV(){
 
 /* ===== AR ===== */
 
-// Inyección controlada de librerías para que no rompan la app al cargar la página
-function load8thWallScripts(callback) {
-  if (window.XR8) {
-    callback();
-    return;
-  }
-  const xrScript = document.createElement("script");
-  xrScript.src = "https://8thwall.com";
-  xrScript.onload = () => {
-    const extrasScript = document.createElement("script");
-    extrasScript.src = "https://8thwall.com";
-    extrasScript.onload = callback;
-    document.head.appendChild(extrasScript);
-  };
-  document.head.appendChild(xrScript);
-}
-
 function createAR(){
-  // Ejecutamos la carga de scripts en paralelo solo al entrar en AR
-  load8thWallScripts(() => {
-    const container = document.getElementById("arContainer");
 
-    container.innerHTML = `
-      <a-scene
-        xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
-        xrextras-loading
-        xrextras-runtime-error
-        renderer="alpha: true; 
-        physicallyCorrectLights: true; 
-        colorManagement: true; 
-        exposure: 3.5; 
-        toneMapping: ACESFilmicToneMapping;"
-        color-space="sRGB"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-      >
+  const container = document.getElementById("arContainer");
 
-      <a-assets>
-        <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-      </a-assets>
+  // autoStart: false evita la pantalla negra al inicio, permitiendo que model-viewer renderice libremente.
+  container.innerHTML = `
+    <a-scene
+      xrweb="disableWorldTracking: true; autoStart: false; imageTargetSmoothing: 0.6;"
+      xrextras-loading
+      xrextras-runtime-error
+      renderer="alpha: true; 
+      physicallyCorrectLights: true; 
+      colorManagement: true; 
+      exposure: 3.5; 
+      toneMapping: ACESFilmicToneMapping;"
+      color-space="sRGB"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
 
-      
+    <a-assets>
+      <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+    </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+    
 
-      <!-- Reemplazo limpio del marcador usando tu Cupcake (Marker_8th_01) -->
-      <xrextras-named-image-target name="Marker_8th_01">
-        <a-gltf-model
-          id="aframeModel"
-          src="${models[current]}"
-          rotation="90 0 0"
-          scale="8 8 8">
-        </a-gltf-model>
-      </xrextras-named-image-target>
+    <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-    </a-scene>
-    `;
-  });
+    <!-- Usamos el contenedor nativo mapeado a tu Cupcake (Marker_8th_01) -->
+    <xrextras-named-image-target name="Marker_8th_01">
+      <a-gltf-model
+        id="aframeModel"
+        src="${models[current]}"
+        rotation="90 0 0"
+        scale="8 8 8">
+      </a-gltf-model>
+    </xrextras-named-image-target>
+
+  </a-scene>
+  `;
+
+  // Forzamos manualmente el arranque del motor XR justo tras inyectar la escena en el DOM
+  const scene = document.querySelector('a-scene');
+  if (scene) {
+    scene.addEventListener('loaded', () => {
+      XR8.run({scene});
+    });
+  }
 }
 
 function destroyAR(){
+  // Apagamos la cámara de 8th Wall limpiamente antes de vaciar el contenedor
+  if (window.XR8) {
+    XR8.stop();
+  }
   document.getElementById("arContainer").innerHTML = "";
 }
 
@@ -267,18 +272,27 @@ function next(){
 /* ===== TRANSICIONES ===== */
 
 function startAR(){
+
   history.pushState({ mode: "ar", current }, "");
+
   destroyMV();
+
   document.getElementById("startScreen").style.display = "none";
+
   const arContainer = document.getElementById("arContainer");
   arContainer.style.display = "block";
+
   createAR();
 }
 
 function stopAR(){
+
   destroyAR();
+
   document.getElementById("arContainer").style.display = "none";
+
   document.getElementById("startScreen").style.display = "flex";
+
   createMV();
 }
 
