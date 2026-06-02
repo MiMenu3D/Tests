@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<!-- Sustitución de Scripts: 8th Wall Open Source Engine + Extras + A-Frame -->
+<script src="https://8thwall.com"></script>
+<script src="https://8thwall.com"></script>
+<script src="https://aframe.io"></script>
+<script type="module" src="https://unpkg.com"></script>
 
 <style>
 
@@ -100,8 +102,6 @@ a-scene {
   width: 100%;
   height: 100%;
 }
-
-.mindar-ui-scanning { z-index: 51 !important; }
   
 </style>
 </head>
@@ -111,7 +111,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 39</div>
+  <!-- Actualizado a Versión 43 -->
+  <div id="prueba">Prueba 43</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -204,10 +205,9 @@ function createAR(){
 
   container.innerHTML = `
     <a-scene
-      mindar-image="imageTargetSrc: margot_targets.mind; 
-      autoStart: true; 
-      filterMinCF: 0.0002; 
-      filterBeta: 0.004;"
+      xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
+      xrextras-loading
+      xrextras-runtime-error
       renderer="alpha: true; 
       physicallyCorrectLights: true; 
       colorManagement: true; 
@@ -222,18 +222,19 @@ function createAR(){
       <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
     </a-assets>
 
-    <a-entity environment-map="src:#hdrEnv; intensity:4.5"></a-entity>
+    
 
     <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-    <a-entity mindar-image-target="targetIndex: 0">
+    <!-- Target Vinculado Directamente al nombre de tu JSON: Marker_8th_01 -->
+    <xrextras-named-image-target name="Marker_8th_01">
       <a-gltf-model
         id="aframeModel"
         src="${models[current]}"
         rotation="90 0 0"
         scale="8 8 8">
       </a-gltf-model>
-    </a-entity>
+    </xrextras-named-image-target>
 
   </a-scene>
   `;
