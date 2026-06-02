@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Head original v39: Solo el núcleo gráfico nativo para el menú principal -->
+<!-- Head original v39: Solo el núcleo gráfico nativo para evitar interferencias en el inicio -->
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -100,6 +100,36 @@ a-scene {
   width: 100%;
   height: 100%;
 }
+
+/* Interfaz de escaneo integrada nativa (Reemplazo de xrextras) */
+#customLoadingUi {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: sans-serif;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.scanner-frame {
+  width: 70vw;
+  height: 70vw;
+  border: 3px dashed rgba(255,255,255,0.5);
+  border-radius: 20px;
+  position: absolute;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.98); opacity: 0.5; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(0.98); opacity: 0.5; }
+}
   
 </style>
 </head>
@@ -109,8 +139,7 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <!-- Forzado manualmente a Prueba 49 -->
-  <div id="prueba">Prueba 49</div>
+  <div id="prueba">Prueba 50</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -197,20 +226,15 @@ function destroyMV(){
 
 /* ===== AR ===== */
 
-// Carga asíncrona local: Inyecta xr.js y xrextras.js locales sin pisar a model-viewer en el arranque
+// Carga asíncrona local: Inyecta únicamente el archivo existente xr.js sin dependencias extras
 function loadLocal8thWall(callback) {
   if (window.XR8) {
     callback();
     return;
   }
   const s1 = document.createElement("script");
-  s1.src = "./xr.js"; // Llama al archivo de tu primer pantallazo
-  s1.onload = () => {
-    const s2 = document.createElement("script");
-    s2.src = "./xrextras.js"; // Llama al xrextras local de tu repositorio
-    s2.onload = callback;
-    document.head.appendChild(s2);
-  };
+  s1.src = "./xr.js"; // Archivo de 995 KB de tu primer pantallazo
+  s1.onload = callback;
   document.head.appendChild(s1);
 }
 
@@ -218,11 +242,15 @@ function createAR(){
   loadLocal8thWall(() => {
     const container = document.getElementById("arContainer");
 
+    // Eliminamos xrextras de la escena e inyectamos el visor de escaneo nativo directamente en HTML
     container.innerHTML = `
+      <div id="customLoadingUi">
+        <div class="scanner-frame"></div>
+        <div style="position:absolute; bottom:15%;">Apunta al menú físico</div>
+      </div>
+
       <a-scene
         xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
-        xrextras-loading
-        xrextras-runtime-error
         renderer="alpha: true; 
         physicallyCorrectLights: true; 
         colorManagement: true; 
@@ -241,7 +269,7 @@ function createAR(){
 
       <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-      <!-- Target de 8th Wall apuntando a tu Cupcake (Marker_8th_01) -->
+      <!-- Target mapeado a tu Cupcake (Marker_8th_01) -->
       <xrextras-named-image-target name="Marker_8th_01">
         <a-gltf-model
           id="aframeModel"
@@ -253,11 +281,23 @@ function createAR(){
 
     </a-scene>
     `;
+
+    // Oculta la animación de escaneo automáticamente cuando el motor encuentra la imagen
+    const targetEntity = document.querySelector('xrextras-named-image-target');
+    if (targetEntity) {
+      targetEntity.addEventListener('xrimagefound', () => {
+        const ui = document.getElementById('customLoadingUi');
+        if (ui) ui.style.display = 'none';
+      });
+      targetEntity.addEventListener('xrimagelost', () => {
+        const ui = document.getElementById('customLoadingUi');
+        if (ui) ui.style.display = 'flex';
+      });
+    }
   });
 }
 
 function destroyAR(){
-  // Apagado violento del hardware de la cámara al volver atrás
   if (window.XR8) {
     try { XR8.stop(); } catch(e) {}
   }
