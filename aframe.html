@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Cargamos limpiamente las librerías en el head. Con autoStart:false ya no interfieren con model-viewer -->
-<script src="https://8thwall.com"></script>
-<script src="https://8thwall.com"></script>
+<!-- Head original v39: Cargamos el núcleo gráfico sin interferencias de 8th Wall al inicio -->
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -111,8 +109,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <!-- Forzado manualmente a Prueba 44 -->
-  <div id="prueba">Prueba 45</div>
+  <!-- Actualizado estrictamente a Prueba 46 -->
+  <div id="prueba">Prueba 46</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -199,60 +197,71 @@ function destroyMV(){
 
 /* ===== AR ===== */
 
-function createAR(){
-
-  const container = document.getElementById("arContainer");
-
-  // autoStart: false evita la pantalla negra al inicio, permitiendo que model-viewer renderice libremente.
-  container.innerHTML = `
-    <a-scene
-      xrweb="disableWorldTracking: true; autoStart: false; imageTargetSmoothing: 0.6;"
-      xrextras-loading
-      xrextras-runtime-error
-      renderer="alpha: true; 
-      physicallyCorrectLights: true; 
-      colorManagement: true; 
-      exposure: 3.5; 
-      toneMapping: ACESFilmicToneMapping;"
-      color-space="sRGB"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-
-    <a-assets>
-      <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-    </a-assets>
-
-    
-
-    <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
-
-    <!-- Usamos el contenedor nativo mapeado a tu Cupcake (Marker_8th_01) -->
-    <xrextras-named-image-target name="Marker_8th_01">
-      <a-gltf-model
-        id="aframeModel"
-        src="${models[current]}"
-        rotation="90 0 0"
-        scale="8 8 8">
-      </a-gltf-model>
-    </xrextras-named-image-target>
-
-  </a-scene>
-  `;
-
-  // Forzamos manualmente el arranque del motor XR justo tras inyectar la escena en el DOM
-  const scene = document.querySelector('a-scene');
-  if (scene) {
-    scene.addEventListener('loaded', () => {
-      XR8.run({scene});
-    });
+// Secuenciador estricto para inyectar los scripts de tracking de 8th Wall de forma limpia al pulsar el botón
+function inject8thWall(callback) {
+  if (window.XR8) {
+    callback();
+    return;
   }
+  const s1 = document.createElement("script");
+  s1.src = "https://8thwall.com";
+  s1.async = false;
+  s1.onload = () => {
+    const s2 = document.createElement("script");
+    s2.src = "https://8thwall.com";
+    s2.async = false;
+    s2.onload = callback;
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s1);
+}
+
+function createAR(){
+  inject8thWall(() => {
+    const container = document.getElementById("arContainer");
+
+    container.innerHTML = `
+      <a-scene
+        xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
+        xrextras-loading
+        xrextras-runtime-error
+        renderer="alpha: true; 
+        physicallyCorrectLights: true; 
+        colorManagement: true; 
+        exposure: 3.5; 
+        toneMapping: ACESFilmicToneMapping;"
+        color-space="sRGB"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+      >
+
+      <a-assets>
+        <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+      </a-assets>
+
+      
+
+      <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+
+      <!-- Contenedor del marcador mapeado a tu Cupcake (Marker_8th_01) -->
+      <xrextras-named-image-target name="Marker_8th_01">
+        <a-gltf-model
+          id="aframeModel"
+          src="${models[current]}"
+          rotation="90 0 0"
+          scale="8 8 8">
+        </a-gltf-model>
+      </xrextras-named-image-target>
+
+    </a-scene>
+    `;
+  });
 }
 
 function destroyAR(){
-  // Apagamos la cámara de 8th Wall limpiamente antes de vaciar el contenedor
+  // Desconexión violenta y limpia de los hilos de ejecución de la cámara de 8th Wall antes de vaciar la memoria
   if (window.XR8) {
-    XR8.stop();
+    try { XR8.stop(); } catch(e) {}
   }
   document.getElementById("arContainer").innerHTML = "";
 }
