@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Head original v39: El núcleo limpio sin scripts invasivos al arrancar -->
+<!-- Los 2 scripts nativos locales de 8th Wall que tienes subidos en tu raíz -->
+<script src="./xr.js"></script>
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -86,34 +87,19 @@ model-viewer {
   border: none;
 }
 
-/* Interfaz de escaneo integrada nativa */
-#customLoadingUi {
+/* ===== AR ===== */
+
+#arContainer {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
-  z-index: 999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-family: sans-serif;
-  font-size: 18px;
-  pointer-events: none;
+  background: #1f1a17;
+  z-index: 50;
+  display: none;
 }
 
-.scanner-frame {
-  width: 70vw;
-  height: 70vw;
-  border: 3px dashed rgba(255,255,255,0.5);
-  border-radius: 20px;
-  position: absolute;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.98); opacity: 0.5; }
-  50% { transform: scale(1.02); opacity: 1; }
-  100% { transform: scale(0.98); opacity: 0.5; }
+a-scene {
+  width: 100%;
+  height: 100%;
 }
   
 </style>
@@ -124,7 +110,8 @@ model-viewer {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 52</div>
+  <!-- Fijado estrictamente en la Prueba 53 -->
+  <div id="prueba">Prueba 53</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -135,11 +122,11 @@ model-viewer {
   <button class="button" onclick="startAR()">Ver en tu mesa</button>
 </div>
 
+<div id="arContainer"></div>
+
 <script>
 
-// Recuperamos el plato del historial si el usuario vuelve atrás desde la cámara
-const urlParams = new URLSearchParams(window.location.search);
-let current = parseInt(urlParams.get('plate')) || 0;
+let current = 0;
 let mv = null;
 
 /* MODELOS */
@@ -155,7 +142,6 @@ const models = [
 function createMV(){
 
   const container = document.getElementById("mvContainer");
-  if (!container) return;
 
   container.innerHTML = `
     <model-viewer
@@ -205,6 +191,58 @@ function updateMV(){
     "Plato " + (current + 1);
 }
 
+function destroyMV(){
+  document.getElementById("mvContainer").innerHTML = "";
+  mv = null;
+}
+
+/* ===== AR ===== */
+
+function createAR(){
+
+  const container = document.getElementById("arContainer");
+
+  // LA REGLA OFICIAL: 'xrweb' activa el motor, y la cámara DEBE llevar el componente nativo de 8th Wall.
+  container.innerHTML = `
+    <a-scene
+      xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
+      renderer="alpha: true; 
+      physicallyCorrectLights: true; 
+      colorManagement: true; 
+      exposure: 3.5; 
+      toneMapping: ACESFilmicToneMapping;"
+      color-space="sRGB"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+
+    <a-assets>
+      <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+    </a-assets>
+
+    
+
+    <!-- AQUÍ ESTABA EL ERROR OBVIO: La cámara obligatoriamente necesita indicarle a A-Frame que use el visor de 8th Wall -->
+    <a-camera camera xrweb-camera look-controls="enabled:false"></a-camera>
+
+    <!-- Marcador vinculado a tu Cupcake (Marker_8th_01) -->
+    <xrextras-named-image-target name="Marker_8th_01">
+      <a-gltf-model
+        id="aframeModel"
+        src="${models[current]}"
+        rotation="90 0 0"
+        scale="8 8 8">
+      </a-gltf-model>
+    </xrextras-named-image-target>
+
+  </a-scene>
+  `;
+}
+
+function destroyAR(){
+  document.getElementById("arContainer").innerHTML = "";
+}
+
 /* ===== CONTROLES ===== */
 
 function prev(){
@@ -220,89 +258,33 @@ function next(){
 /* ===== TRANSICIONES ===== */
 
 function startAR(){
-  // Registramos el estado en el historial
+
   history.pushState({ mode: "ar", current }, "");
 
-  const selectedModel = models[current];
+  destroyMV();
 
-  // ASESINATO PURÍSIMO: Vaciamos por completo el cuerpo para purgar model-viewer de la memoria RAM
-  document.body.innerHTML = `
-    <div id="customLoadingUi">
-      <div class="scanner-frame"></div>
-      <div style="position:absolute; bottom:15%;">Apunta al menú físico</div>
-    </div>
-    <div id="arContainer" style="width:100vw; height:100vh; position:fixed; inset:0;"></div>
-  `;
+  document.getElementById("startScreen").style.display = "none";
 
-  // Inyectamos de forma aislada el script local de 8th Wall
-  const xrScript = document.createElement("script");
-  xrScript.src = "./xr.js";
-  xrScript.onload = () => {
-    const arContainer = document.getElementById("arContainer");
-    
-    // Inyectamos la escena limpia sin interferencias previas del DOM
-    arContainer.innerHTML = `
-      <a-scene
-        xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
-        renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 3.5; toneMapping: ACESFilmicToneMapping;"
-        color-space="sRGB"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-      >
-        <a-assets>
-          <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-        </a-assets>
+  const arContainer = document.getElementById("arContainer");
+  arContainer.style.display = "block";
 
-        
-        <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
-
-        <xrextras-named-image-target name="Marker_8th_01">
-          <a-gltf-model
-            id="aframeModel"
-            src="${selectedModel}"
-            rotation="90 0 0"
-            scale="8 8 8">
-          </a-gltf-model>
-        </xrextras-named-image-target>
-      </a-scene>
-    `;
-
-    // Interfaz dinámica del escáner
-    const targetEntity = document.querySelector('xrextras-named-image-target');
-    if (targetEntity) {
-      targetEntity.addEventListener('xrimagefound', () => {
-        const ui = document.getElementById('customLoadingUi');
-        if (ui) ui.style.display = 'none';
-      });
-      targetEntity.addEventListener('xrimagelost', () => {
-        const ui = document.getElementById('customLoadingUi');
-        if (ui) ui.style.display = 'flex';
-      });
-    }
-
-    // DISPARADOR NATIVO: Orden de arranque obligatoria para abrir la cámara web local
-    const scene = document.querySelector('a-scene');
-    if (scene) {
-      if (scene.hasLoaded) {
-        XR8.run({scene});
-      } else {
-        scene.addEventListener('loaded', () => {
-          XR8.run({scene});
-        });
-      }
-    }
-  };
-  document.head.appendChild(xrScript);
+  createAR();
 }
 
-// RETORNO LIMPIO AL MENÚ PRINCIPAL
+function stopAR(){
+
+  destroyAR();
+
+  document.getElementById("arContainer").style.display = "none";
+
+  document.getElementById("startScreen").style.display = "flex";
+
+  createMV();
+}
+
+/* BACK */
 window.addEventListener("popstate", () => {
-  if (window.XR8) {
-    try { XR8.stop(); } catch(e) {}
-  }
-  // Forzamos la recarga pasándole el plato actual para revivir model-viewer sin rastro de 8th Wall
-  const currentPlate = (history.state && history.state.current !== undefined) ? history.state.current : current;
-  window.location.href = window.location.pathname + "?plate=" + currentPlate;
+  stopAR();
 });
 
 /* INIT */
