@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Scripts unificados de la Prueba 47: Estables y sin tocar -->
-<script src="https://8thwall.com"></script>
-<script src="https://8thwall.com"></script>
+<!-- Head original v39: Solo el núcleo gráfico nativo para el menú principal -->
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -111,8 +109,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <!-- Fijado estrictamente en Prueba 48 -->
-  <div id="prueba">Prueba 48</div>
+  <!-- Forzado manualmente a Prueba 49 -->
+  <div id="prueba">Prueba 49</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -199,61 +197,67 @@ function destroyMV(){
 
 /* ===== AR ===== */
 
-function createAR(){
-
-  const container = document.getElementById("arContainer");
-
-  container.innerHTML = `
-    <a-scene
-      xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
-      xrextras-loading
-      xrextras-runtime-error
-      renderer="alpha: true; 
-      physicallyCorrectLights: true; 
-      colorManagement: true; 
-      exposure: 3.5; 
-      toneMapping: ACESFilmicToneMapping;"
-      color-space="sRGB"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-
-    <a-assets>
-      <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-    </a-assets>
-
-    
-
-    <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
-
-    <!-- Marcador vinculado a la carpeta image-targets de tu repo (Marker_8th_01) -->
-    <xrextras-named-image-target name="Marker_8th_01">
-      <a-gltf-model
-        id="aframeModel"
-        src="${models[current]}"
-        rotation="90 0 0"
-        scale="8 8 8">
-      </a-gltf-model>
-    </xrextras-named-image-target>
-
-  </a-scene>
-  `;
-
-  // LA CORRECCIÓN CLAVE: Despierta y fuerza el arranque manual de la cámara de 8th Wall en el DOM
-  const scene = document.querySelector('a-scene');
-  if (scene) {
-    if (scene.hasLoaded) {
-      XR8.run({scene});
-    } else {
-      scene.addEventListener('loaded', () => {
-        XR8.run({scene});
-      });
-    }
+// Carga asíncrona local: Inyecta xr.js y xrextras.js locales sin pisar a model-viewer en el arranque
+function loadLocal8thWall(callback) {
+  if (window.XR8) {
+    callback();
+    return;
   }
+  const s1 = document.createElement("script");
+  s1.src = "./xr.js"; // Llama al archivo de tu primer pantallazo
+  s1.onload = () => {
+    const s2 = document.createElement("script");
+    s2.src = "./xrextras.js"; // Llama al xrextras local de tu repositorio
+    s2.onload = callback;
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s1);
+}
+
+function createAR(){
+  loadLocal8thWall(() => {
+    const container = document.getElementById("arContainer");
+
+    container.innerHTML = `
+      <a-scene
+        xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
+        xrextras-loading
+        xrextras-runtime-error
+        renderer="alpha: true; 
+        physicallyCorrectLights: true; 
+        colorManagement: true; 
+        exposure: 3.5; 
+        toneMapping: ACESFilmicToneMapping;"
+        color-space="sRGB"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+      >
+
+      <a-assets>
+        <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+      </a-assets>
+
+      
+
+      <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+
+      <!-- Target de 8th Wall apuntando a tu Cupcake (Marker_8th_01) -->
+      <xrextras-named-image-target name="Marker_8th_01">
+        <a-gltf-model
+          id="aframeModel"
+          src="${models[current]}"
+          rotation="90 0 0"
+          scale="8 8 8">
+        </a-gltf-model>
+      </xrextras-named-image-target>
+
+    </a-scene>
+    `;
+  });
 }
 
 function destroyAR(){
-  // Apaga y libera los hilos de la cámara limpiamente antes de vaciar el div
+  // Apagado violento del hardware de la cámara al volver atrás
   if (window.XR8) {
     try { XR8.stop(); } catch(e) {}
   }
