@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
-<!-- Sustitución de Scripts: 8th Wall Open Source Engine + Extras + A-Frame -->
-<script src="https://8thwall.com"></script>
-<script src="https://8thwall.com"></script>
+<!-- Mantenemos exactamente tus scripts de la v39 (Quitamos MindAR, pero NO ponemos 8th Wall aquí) -->
 <script src="https://aframe.io"></script>
 <script type="module" src="https://unpkg.com"></script>
 
@@ -111,8 +109,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <!-- Actualizado a Versión 43 -->
-  <div id="prueba">Prueba 43</div>
+  <!-- Cambiado a versión 43 -->
+  <div id="prueba">Prueba 44</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -141,9 +139,7 @@ const models = [
 /* ===== MODEL VIEWER ===== */
 
 function createMV(){
-
   const container = document.getElementById("mvContainer");
-
   container.innerHTML = `
     <model-viewer
       id="mv"
@@ -168,28 +164,21 @@ function createMV(){
 
   mv = document.getElementById("mv");
 
-  /* Fade inicial */
   mv.addEventListener("load", () => {
     mv.style.opacity = "1";
   }, { once: true });
 
-  document.getElementById("label").innerText =
-    "Plato " + (current + 1);
+  document.getElementById("label").innerText = "Plato " + (current + 1);
 }
 
-/* Fade entre modelos */
 function updateMV(){
   if (!mv) return;
-
   mv.style.opacity = "0";
   mv.setAttribute("src", models[current]);
-
   mv.addEventListener("load", () => {
     mv.style.opacity = "1";
   }, { once: true });
-
-  document.getElementById("label").innerText =
-    "Plato " + (current + 1);
+  document.getElementById("label").innerText = "Plato " + (current + 1);
 }
 
 function destroyMV(){
@@ -199,45 +188,64 @@ function destroyMV(){
 
 /* ===== AR ===== */
 
+// Inyección controlada de librerías para que no rompan la app al cargar la página
+function load8thWallScripts(callback) {
+  if (window.XR8) {
+    callback();
+    return;
+  }
+  const xrScript = document.createElement("script");
+  xrScript.src = "https://8thwall.com";
+  xrScript.onload = () => {
+    const extrasScript = document.createElement("script");
+    extrasScript.src = "https://8thwall.com";
+    extrasScript.onload = callback;
+    document.head.appendChild(extrasScript);
+  };
+  document.head.appendChild(xrScript);
+}
+
 function createAR(){
+  // Ejecutamos la carga de scripts en paralelo solo al entrar en AR
+  load8thWallScripts(() => {
+    const container = document.getElementById("arContainer");
 
-  const container = document.getElementById("arContainer");
+    container.innerHTML = `
+      <a-scene
+        xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
+        xrextras-loading
+        xrextras-runtime-error
+        renderer="alpha: true; 
+        physicallyCorrectLights: true; 
+        colorManagement: true; 
+        exposure: 3.5; 
+        toneMapping: ACESFilmicToneMapping;"
+        color-space="sRGB"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+      >
 
-  container.innerHTML = `
-    <a-scene
-      xrweb="disableWorldTracking: true; imageTargetSmoothing: 0.6;"
-      xrextras-loading
-      xrextras-runtime-error
-      renderer="alpha: true; 
-      physicallyCorrectLights: true; 
-      colorManagement: true; 
-      exposure: 3.5; 
-      toneMapping: ACESFilmicToneMapping;"
-      color-space="sRGB"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
+      <a-assets>
+        <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
+      </a-assets>
 
-    <a-assets>
-      <a-asset-item id="hdrEnv" src="terrace_sea.hdr"></a-asset-item>
-    </a-assets>
+      
 
-    
+      <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-    <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+      <!-- Reemplazo limpio del marcador usando tu Cupcake (Marker_8th_01) -->
+      <xrextras-named-image-target name="Marker_8th_01">
+        <a-gltf-model
+          id="aframeModel"
+          src="${models[current]}"
+          rotation="90 0 0"
+          scale="8 8 8">
+        </a-gltf-model>
+      </xrextras-named-image-target>
 
-    <!-- Target Vinculado Directamente al nombre de tu JSON: Marker_8th_01 -->
-    <xrextras-named-image-target name="Marker_8th_01">
-      <a-gltf-model
-        id="aframeModel"
-        src="${models[current]}"
-        rotation="90 0 0"
-        scale="8 8 8">
-      </a-gltf-model>
-    </xrextras-named-image-target>
-
-  </a-scene>
-  `;
+    </a-scene>
+    `;
+  });
 }
 
 function destroyAR(){
@@ -259,27 +267,18 @@ function next(){
 /* ===== TRANSICIONES ===== */
 
 function startAR(){
-
   history.pushState({ mode: "ar", current }, "");
-
   destroyMV();
-
   document.getElementById("startScreen").style.display = "none";
-
   const arContainer = document.getElementById("arContainer");
   arContainer.style.display = "block";
-
   createAR();
 }
 
 function stopAR(){
-
   destroyAR();
-
   document.getElementById("arContainer").style.display = "none";
-
   document.getElementById("startScreen").style.display = "flex";
-
   createMV();
 }
 
