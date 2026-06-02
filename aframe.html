@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>A-Frame AR</title>
 
+<!-- Scripts unificados de la Prueba 47: Estables y sin tocar -->
 <script src="https://8thwall.com"></script>
 <script src="https://8thwall.com"></script>
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<script src="https://aframe.io"></script>
+<script type="module" src="https://unpkg.com"></script>
 
 <style>
 
@@ -110,7 +111,8 @@ a-scene {
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 47</div>
+  <!-- Fijado estrictamente en Prueba 48 -->
+  <div id="prueba">Prueba 48</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -224,6 +226,7 @@ function createAR(){
 
     <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
+    <!-- Marcador vinculado a la carpeta image-targets de tu repo (Marker_8th_01) -->
     <xrextras-named-image-target name="Marker_8th_01">
       <a-gltf-model
         id="aframeModel"
@@ -235,9 +238,25 @@ function createAR(){
 
   </a-scene>
   `;
+
+  // LA CORRECCIÓN CLAVE: Despierta y fuerza el arranque manual de la cámara de 8th Wall en el DOM
+  const scene = document.querySelector('a-scene');
+  if (scene) {
+    if (scene.hasLoaded) {
+      XR8.run({scene});
+    } else {
+      scene.addEventListener('loaded', () => {
+        XR8.run({scene});
+      });
+    }
+  }
 }
 
 function destroyAR(){
+  // Apaga y libera los hilos de la cámara limpiamente antes de vaciar el div
+  if (window.XR8) {
+    try { XR8.stop(); } catch(e) {}
+  }
   document.getElementById("arContainer").innerHTML = "";
 }
 
