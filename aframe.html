@@ -98,7 +98,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 54 HDR</div>
+  <div id="prueba">Prueba 55 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -254,6 +254,8 @@ function startAR(){
 
 function stopAR(){
   destroyAR();
+  document.querySelectorAll(".mindar-ui-scanning")
+  .forEach(el => el.remove());
   document.getElementById("arContainer").style.display = "none";
   document.getElementById("startScreen").style.display = "flex";
   createMV();
