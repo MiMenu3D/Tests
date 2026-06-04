@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>A-Frame AR - Prueba 46 HDR</title>
+<title>A-Frame AR - Prueba 47 HDR</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -171,7 +171,7 @@ function createAR(){
   container.innerHTML = `
     <a-scene
       mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
-      renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 0.25; toneMapping: ACESFilmicToneMapping;"
+      renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 0.2; toneMapping: ACESFilmicToneMapping;"
       color-space="sRGB"
       vr-mode-ui="enabled:false"
       device-orientation-permission-ui="enabled:false">
@@ -215,7 +215,7 @@ function createAR(){
 
         model.object3D.traverse((obj) => {
           if (!obj.isMesh || !obj.material) return;
-          obj.material.envMapIntensity = 2.0;
+          obj.material.envMapIntensity = 3.0;
           obj.material.needsUpdate = true;
         });
 
