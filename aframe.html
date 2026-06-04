@@ -84,7 +84,7 @@ model-viewer {
   position: fixed;
   inset: 0;
   background: #1f1a17;
-  z-index: 50;
+  z-index: 51;
   display: none;
 }
 
@@ -141,7 +141,7 @@ function createMV(){
       disable-pan
       disable-zoom
       interaction-prompt="none"
-      shadow-intensity="0.99"
+      shadow-intensity="0.4"
       exposure="0.80"
       style="background-color:#1f1a17;">
     </model-viewer>`;
@@ -171,7 +171,7 @@ function createAR(){
   container.innerHTML = `
     <a-scene
       mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
-      renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 0.9; toneMapping: ACESFilmicToneMapping;"
+      renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 0.5; toneMapping: ACESFilmicToneMapping;"
       color-space="sRGB"
       vr-mode-ui="enabled:false"
       device-orientation-permission-ui="enabled:false">
@@ -215,7 +215,7 @@ function createAR(){
 
         model.object3D.traverse((obj) => {
           if (!obj.isMesh || !obj.material) return;
-          obj.material.envMapIntensity = 3.0;
+          obj.material.envMapIntensity = 2.0;
           obj.material.needsUpdate = true;
         });
 
