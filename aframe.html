@@ -215,7 +215,7 @@ function createAR(){
 
         model.object3D.traverse((obj) => {
           if (!obj.isMesh || !obj.material) return;
-          obj.material.envMapIntensity = 1.25;
+          obj.material.envMapIntensity = 0.9;
           obj.material.needsUpdate = true;
         });
 
