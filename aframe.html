@@ -98,7 +98,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 46 HDR</div>
+  <div id="prueba">Prueba 47 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -141,7 +141,7 @@ function createMV(){
       disable-pan
       disable-zoom
       interaction-prompt="none"
-      shadow-intensity="0.5"
+      shadow-intensity="0.99"
       exposure="0.80"
       style="background-color:#1f1a17;">
     </model-viewer>`;
@@ -215,7 +215,7 @@ function createAR(){
 
         model.object3D.traverse((obj) => {
           if (!obj.isMesh || !obj.material) return;
-          obj.material.envMapIntensity = 5.0;
+          obj.material.envMapIntensity = 1.0;
           obj.material.needsUpdate = true;
         });
 
