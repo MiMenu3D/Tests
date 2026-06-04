@@ -98,7 +98,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 50 HDR</div>
+  <div id="prueba">Prueba 51 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -171,7 +171,7 @@ function createAR(){
   container.innerHTML = `
     <a-scene
       mindar-image="imageTargetSrc: margot_targets.mind; autoStart: true; filterMinCF: 0.0002; filterBeta: 0.004;"
-      renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 0.5; toneMapping: ACESFilmicToneMapping;"
+      renderer="alpha: true; physicallyCorrectLights: true; colorManagement: true; exposure: 0.7; toneMapping: ACESFilmicToneMapping;"
       color-space="sRGB"
       vr-mode-ui="enabled:false"
       device-orientation-permission-ui="enabled:false">
@@ -202,7 +202,7 @@ function createAR(){
 
     const loader = new THREE.RGBELoader();
 
-    loader.load("newman_cafeteria.hdr", function(hdrTexture){
+    loader.load("cinema_lobby.hdr", function(hdrTexture){
 
       console.log("HDR cargado");
 
@@ -215,7 +215,7 @@ function createAR(){
 
         model.object3D.traverse((obj) => {
           if (!obj.isMesh || !obj.material) return;
-          obj.material.envMapIntensity = 2.0;
+          obj.material.envMapIntensity = 1.5;
           obj.material.needsUpdate = true;
         });
 
