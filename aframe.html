@@ -98,7 +98,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 55 HDR</div>
+  <div id="prueba">Prueba 56.1 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -194,6 +194,19 @@ function createAR(){
   sceneEl.addEventListener("loaded", () => {
 
     console.log("A-Frame cargado");
+    setTimeout(() => {
+
+  const video = document.querySelector("video");
+
+  if (!video) {
+    console.log("NO ENCUENTRO VIDEO");
+    return;
+  }
+
+  console.log("VIDEO ENCONTRADO");
+  console.log(video.videoWidth, video.videoHeight);
+
+}, 3000);
 
     if (!window.THREE || !THREE.RGBELoader) {
       console.error("RGBELoader no disponible");
@@ -202,7 +215,7 @@ function createAR(){
 
     const loader = new THREE.RGBELoader();
 
-    loader.load("cinema_lobby_B-N.hdr", function(hdrTexture){
+    loader.load("cinema_lobby_B-N_XXX.hdr", function(hdrTexture){
 
       console.log("HDR cargado");
 
