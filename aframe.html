@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 56.9 HDR</div>
+  <div id="prueba">Prueba 57.0 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -226,6 +226,19 @@ function createAR(){
   sceneEl.addEventListener("loaded", () => {
 
     console.log("A-Frame cargado");
+    const prueba = document.getElementById("lightDebug");
+
+setTimeout(() => {
+
+  if (sceneEl.renderer) {
+    prueba.style.display = "block";
+    prueba.innerText = "RENDERER OK";
+  } else {
+    prueba.style.display = "block";
+    prueba.innerText = "NO RENDERER";
+  }
+
+}, 1000);
     setTimeout(() => {
 
   const video = document.querySelector("video");
