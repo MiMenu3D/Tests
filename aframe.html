@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 57.0 HDR</div>
+  <div id="prueba">Prueba 57.1 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -145,6 +145,8 @@ let envEnabled = true;
 let originalEnv = null;
 let cameraEnv = null;
 let envMode = "hdr";
+let pmremGenerator = null;
+let cameraRT = null;
 let mv = null;
 
 const models = [
@@ -226,6 +228,12 @@ function createAR(){
   sceneEl.addEventListener("loaded", () => {
 
     console.log("A-Frame cargado");
+    pmremGenerator =
+  new THREE.PMREMGenerator(sceneEl.renderer);
+
+pmremGenerator.compileEquirectangularShader();
+
+console.log("PMREM listo");
     const prueba = document.getElementById("lightDebug");
 
 setTimeout(() => {
@@ -262,6 +270,11 @@ prueba.style.display = "block";
   const canvas = document.createElement("canvas");
   canvas.width = 64;
   canvas.height = 64;
+  const envTexture =
+  new THREE.CanvasTexture(canvas);
+
+envTexture.mapping =
+  THREE.EquirectangularReflectionMapping;
 
   const ctx = canvas.getContext("2d");
 
@@ -271,6 +284,16 @@ const alpha = 0.08; // suavizado
 setInterval(() => {
 
   ctx.drawImage(video, 0, 0, 64, 64);
+  if (pmremGenerator) {
+
+  if (cameraRT) {
+    cameraRT.dispose();
+  }
+
+  cameraRT =
+    pmremGenerator.fromEquirectangular(envTexture);
+
+}
 
   const pixels = ctx.getImageData(0, 0, 64, 64).data;
 
@@ -382,7 +405,10 @@ function toggleEnv(){
 
   if (envMode === "hdr") {
 
-    scene.object3D.environment = cameraEnv;
+    if (cameraRT) {
+  scene.object3D.environment =
+    cameraRT.texture;
+}
 
     envMode = "cam";
 
