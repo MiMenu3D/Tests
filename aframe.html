@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 56.7 HDR</div>
+  <div id="prueba">Prueba 56.8 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -134,7 +134,7 @@ background: white;
 color: black;
 font-size: 14px;
 ">
-Env: ON
+Env: HDR
 </button>
 
 <div id="lightDebug">LIGHT --</div>
@@ -143,6 +143,8 @@ Env: ON
 let current = 0;
 let envEnabled = true;
 let originalEnv = null;
+let cameraEnv = null;
+let envMode = "hdr";
 let mv = null;
 
 const models = [
@@ -227,6 +229,15 @@ function createAR(){
     setTimeout(() => {
 
   const video = document.querySelector("video");
+      if (video && window.THREE) {
+
+  cameraEnv = new THREE.VideoTexture(video);
+
+  cameraEnv.colorSpace = THREE.SRGBColorSpace;
+
+  console.log("Camera texture lista");
+
+}
   const prueba = document.getElementById("lightDebug");
 prueba.style.display = "block";
 
@@ -349,22 +360,44 @@ function stopAR(){
 window.addEventListener("popstate", () => stopAR());
 createMV();
 
-  function toggleEnv(){
+function toggleEnv(){
 
   const scene = document.querySelector("a-scene");
   const btn = document.getElementById("envToggle");
 
   if (!scene) return;
 
-  envEnabled = !envEnabled;
+  if (envMode === "hdr") {
 
-  if (envEnabled) {
-    scene.object3D.environment = originalEnv;
-    btn.innerText = "Env: ON";
-  } else {
-    scene.object3D.environment = null;
-    btn.innerText = "Env: OFF";
+    scene.object3D.environment = cameraEnv;
+
+    envMode = "cam";
+
+    btn.innerText = "Env: CAM";
+
   }
+
+  else if (envMode === "cam") {
+
+    scene.object3D.environment = null;
+
+    envMode = "off";
+
+    btn.innerText = "Env: OFF";
+
+  }
+
+  else {
+
+    scene.object3D.environment = originalEnv;
+
+    envMode = "hdr";
+
+    btn.innerText = "Env: HDR";
+
+  }
+}
+  
 }
 </script>
 
