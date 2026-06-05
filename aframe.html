@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 56.4 HDR</div>
+  <div id="prueba">Prueba 56.5 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -224,32 +224,40 @@ prueba.style.display = "block";
 
   const ctx = canvas.getContext("2d");
 
-  setInterval(() => {
+  let smoothed = 120; // estabilidad inicial
+const alpha = 0.08; // suavizado
 
-    ctx.drawImage(video, 0, 0, 64, 64);
+setInterval(() => {
 
-    const pixels =
-      ctx.getImageData(0, 0, 64, 64).data;
+  ctx.drawImage(video, 0, 0, 64, 64);
 
-    let total = 0;
+  const pixels = ctx.getImageData(0, 0, 64, 64).data;
 
-    for (let i = 0; i < pixels.length; i += 4) {
+  let total = 0;
 
-      const r = pixels[i];
-      const g = pixels[i + 1];
-      const b = pixels[i + 2];
+  for (let i = 0; i < pixels.length; i += 4) {
+    total += (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+  }
 
-      total += (r + g + b) / 3;
-    }
+  const brightness = total / (pixels.length / 4);
 
-    const brightness =
-      Math.round(total / (pixels.length / 4));
+  // suavizado (clave)
+  smoothed = smoothed + (brightness - smoothed) * alpha;
 
-    prueba.innerText =
-      "LIGHT " + brightness;
+  // mapping a exposure usable
+  const exposure = 0.6 + (smoothed / 255) * 0.9;
 
-  }, 1000);
+  const scene = document.querySelector("a-scene");
 
+  if (scene && scene.renderer) {
+    scene.renderer.exposure = exposure;
+  }
+
+  prueba.innerText =
+    `LIGHT ${Math.round(smoothed)} | EXP ${exposure.toFixed(2)}`;
+
+}, 1000);
+      
 }, 3000);
     if (!window.THREE || !THREE.RGBELoader) {
       console.error("RGBELoader no disponible");
