@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 57.4 HDR</div>
+  <div id="prueba">Prueba 57.5 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -294,6 +294,10 @@ setInterval(() => {
   cameraRT =
     pmremGenerator.fromEquirectangular(envTexture);
     envTexture.needsUpdate = true;
+    if (envMode === "cam") {
+
+  sceneEl.object3D.environment =
+    cameraRT.texture;
 
 }
 
