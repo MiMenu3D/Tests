@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 57.6 HDR</div>
+  <div id="prueba">Prueba 57.7 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -281,7 +281,7 @@ envTexture.mapping =
   let smoothed = 120; // estabilidad inicial
 const alpha = 0.08; // suavizado
 
-setInterval(() => {
+envInterval = setInterval(() => {
 
   ctx.drawImage(video, 0, 0, 64, 64);
   envTexture.needsUpdate = true;
@@ -376,6 +376,10 @@ sceneEl.object3D.environment = hdrTexture;
 }
 
 function destroyAR(){
+  if (envInterval) {
+  clearInterval(envInterval);
+  envInterval = null;
+}
   document.getElementById("arContainer").innerHTML = "";
 }
 
