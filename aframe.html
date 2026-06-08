@@ -212,7 +212,9 @@ function createAR(){
 
       <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
+      <a-entity
+        id="targetEntity"
+        mindar-image-target="targetIndex: 0">
         <a-gltf-model
           id="aframeModel"
           src="${models[current]}"
@@ -331,13 +333,13 @@ envInterval = setInterval(() => {
 
 }
 
- const model = document.getElementById("aframeModel");
+ const target = document.getElementById("targetEntity");
 
-if (model) {
+if (target) {
 
-  const p = model.object3D.position;
-  const r = model.object3D.rotation;
-  const s = model.object3D.scale;
+  const p = target.object3D.position;
+  const r = target.object3D.rotation;
+  const s = target.object3D.scale;
 
   prueba.innerText =
     `P ${p.x.toFixed(3)} ${p.y.toFixed(3)} ${p.z.toFixed(3)}
