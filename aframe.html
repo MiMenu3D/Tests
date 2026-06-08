@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 57.8 HDR</div>
+  <div id="prueba">Prueba 58.0 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -329,6 +329,25 @@ envInterval = setInterval(() => {
   scene.object3D.environment =
     cameraRT.texture;
 
+}
+  const target = document.getElementById("targetEntity");
+
+if (target) {
+
+  const p = new THREE.Vector3();
+  const q = new THREE.Quaternion();
+  const s = new THREE.Vector3();
+
+  target.object3D.matrixWorld.decompose(p, q, s);
+
+  prueba.innerText =
+    `PX ${p.x.toFixed(4)}
+PY ${p.y.toFixed(4)}
+PZ ${p.z.toFixed(4)}
+
+SX ${s.x.toFixed(4)}
+
+QW ${q.w.toFixed(4)}`;
 }
 
   prueba.innerText =
