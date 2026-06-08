@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 58.0a HDR</div>
+  <div id="prueba">Prueba 58.0b HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -337,14 +337,12 @@ envInterval = setInterval(() => {
 
 if (target) {
 
-  const p = target.object3D.position;
-  const r = target.object3D.rotation;
-  const s = target.object3D.scale;
+  const m = target.object3D.matrix.elements;
 
-  prueba.innerText =
-    `P ${p.x.toFixed(3)} ${p.y.toFixed(3)} ${p.z.toFixed(3)}
-R ${(r.x * 57.3).toFixed(1)} ${(r.y * 57.3).toFixed(1)} ${(r.z * 57.3).toFixed(1)}
-S ${s.x.toFixed(3)}`;
+prueba.innerText =
+  `${m[12].toFixed(3)}
+${m[13].toFixed(3)}
+${m[14].toFixed(3)}`;
 
 }
 
