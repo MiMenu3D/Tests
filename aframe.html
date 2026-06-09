@@ -109,7 +109,7 @@ a-scene { width:100%; height:100%; }
 <div id="mvContainer"></div>
 
 <div id="startScreen">
-  <div id="prueba">Prueba 58.3 HDR</div>
+  <div id="prueba">Prueba 58.4 HDR</div>
   <div id="label">Plato 01</div>
 
   <div class="arrowContainer">
@@ -334,9 +334,9 @@ envInterval = setInterval(() => {
 
 if (target) {
 
-  const p = new THREE.Vector3();
-  const q = new THREE.Quaternion();
-  const s = new THREE.Vector3();
+  const p = target.object3D.position;
+const q = target.object3D.quaternion;
+const s = target.object3D.scale;
 
   target.object3D.matrixWorld.decompose(p, q, s);
   
